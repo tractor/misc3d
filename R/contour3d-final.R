@@ -869,7 +869,8 @@ Inter <- function(f, level, x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3]){
              color <- rep(color,l)
              alpha <- rep(alpha,l)
            }
-        else if (en==2){
+        #else if (en==2){
+        else{
              color <- rep(color,l/3)
              alpha <- rep(alpha,l/3)
            }
@@ -903,7 +904,7 @@ Inter <- function(f, level, x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3]){
 	   } 
 	}
         else if (en==3){
-           if(nl >1) stop("Engine 3 could not render one isosurface!")
+           #if(nl >1) stop("Engine 3 could not render one isosurface!")
 	   if (li=="phongShiny") li <- phongShiny	      
 	   else if (li=="phongDull") li <- phongDull
            else if (li=="phongMetal") li <- phongMetal
@@ -916,7 +917,8 @@ Inter <- function(f, level, x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3]){
            rx <- parse(text=tclvalue(rxvar))[[1]]
            ry <- parse(text=tclvalue(ryvar))[[1]]
            rz <- parse(text=tclvalue(rzvar))[[1]]
-           eval(substitute(ptri(transformTriangles(zzz,z=rz,y=ry,x=rx),lighting=li,color2=color)))
+           eval(substitute(ptri(transformTriangles(zzz,z=rz,y=ry,x=rx),lighting=li,
+                                color1=color, color2 = color)))
         }
         
     }
