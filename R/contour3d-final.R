@@ -485,11 +485,11 @@ contour3d <- function (f, level, x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[
     
     v <- levCells(vol, level)
     if (effect!= "none"){	
-       	if (effect=="bindx")
+       	if (effect=="bandx")
     	  d <- which(v$i %% 2==0)
-	else if (effect=="bindy")
+	else if (effect=="bandy")
     	  d <- which(v$j %% 2==0)
-	else if (effect=="bindz")
+	else if (effect=="bandz")
     	  d <- which(v$k %% 2==0)
        	else if (effect=="shatter")
           d <- unique(c(which(v$i %% 2==0),which(v$j %% 2==0),which(v$k %% 2==0)))
@@ -1014,7 +1014,7 @@ Inter <- function(f, level, x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3]){
     layervar <- tclVar(1)
     tkpack(tkentry(frame6, textvariable = layervar))
 
-    for ( i in c("none", "bindx", "bindy", "bindz", "shatter") ) {
+    for ( i in c("none", "bandx", "bandy", "bandz", "shatter") ) {
         tmp <- tkradiobutton(frame6, command=regen,
                              text=i,value=i,variable=effect)
         tkpack(tmp, anchor="w")
