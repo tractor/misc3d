@@ -1,3 +1,19 @@
+findNonFinite3d <- function(x, y, z, group) {
+  n <- length(x) / group
+  nf <- ! (is.finite(x) & is.finite(y) & is.finite(z))
+  if (any(nf)) {
+    idxg <- group * (1 : n)
+    if (group == 2)
+      rep(nf[idxg] | nf[idxg - 1], rep(2, n))
+    else if (group == 3)
+      rep(nf[idxg] | nf[idxg - 1] | nf[idxg - 2], rep(3, n))
+    else if (group == 4)
+      rep(nf[idxg] | nf[idxg - 1] | nf[idxg - 2] | nf[idxg - 3], rep(4, n))
+    else stop("unknown group size for NA grouping")
+  }
+  else nf
+}
+
 parametric3d <- function(fx, fy, fz, umin, umax, vmin, vmax, n=100,
                          add = FALSE,...){
     origion.u <- seq(umin, umax, len=n)
