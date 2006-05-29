@@ -1,5 +1,5 @@
 #Try to shatter the contour
-contour3d <- function (f, level, x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
+contour3dEff <- function (f, level, x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
                        effect, markx=0,marky=0,markz=0)
  
 {
