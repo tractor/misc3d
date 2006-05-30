@@ -5,7 +5,7 @@
   Uses rgl to render an isosurface computed by the marching cubes algorithm.
 }
 \usage{
-   contour3d(f, level, x, y, z, add=FALSE,...)
+   contour3d(f, level, x, y, z, add=FALSE, engine = "rgl", ...)
 }
 \arguments{
   \item{f}{a function of 3 arguments or a three dimensional array.}
@@ -15,6 +15,8 @@
     measured or \code{f} is evaluated. Can be omitted if \code{f} is an
     array.}
   \item{add}{logical; if \code{TRUE}, add to current \code{rgl} graph.}
+  \item{engine}{character; currently "rgl" or "none"; for "none" the
+    computad triangles are returned.}
   \item{...}{material and texture properties. See \code{rgl.material}
     for details.}
 }
