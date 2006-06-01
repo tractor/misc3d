@@ -1,3 +1,21 @@
+##**** need some more examples/test cases
+#***** check empty contour case
+##**** Sort out NA handling
+##**** interpolate to x, y, z values
+##**** allow mask array/function
+##**** allow color array/function
+##**** allow multiple levels
+##**** add 'draw' argument
+##**** have rgl verison return matrix?
+##**** add standard, grid versions
+
+##**** redo with 21 cases, breaking face ambiguity by always cutting
+##**** off high vertices.  Always going for shorter face contour is probably
+##**** much harder?
+##**** allow processing of one slice at a time (maybe even for multiple
+##**** contours?)
+##**** is the 'special' stuff ever used??
+
 PreProcessing <- local({
     explode <- function(x)
         floor(((x - 1) %% 2^(1:8))/2^(0:7))
@@ -357,6 +375,7 @@ computeContour3d <- function (f, level,
                               y = 1:dim(f)[2],
                               z = 1:dim(f)[3]) {
     if (typeof(f) == "closure") {
+        ##**** probably not the right thing to do with NA'a
         NAS <- unique(c(which(is.na(x)),which(is.na(y)),which(is.na(z))))
         if (length(NAS) > 0){
             x <- x[-NAS]
@@ -377,7 +396,9 @@ computeContour3d <- function (f, level,
         vol <- f
     }
     else stop("vol has to be a function or a 3-dimensional array")
+    ##**** check for an empty contour?
 
+    ##**** merge into GetBasic
     GetInfo <- function(cube.1){
         index <- matrix(c(0,1,1,0,0,1,1,0,
                           0,0,1,1,0,0,1,1,
@@ -395,6 +416,7 @@ computeContour3d <- function (f, level,
         information
     }
 
+    ##**** Lift out by adding information argument (rename for clarity?)
     GetPoints<-function(edge,p1){
         x1 <- EP[edge,2]
         x2 <- EP[edge,3]
