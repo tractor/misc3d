@@ -256,8 +256,101 @@ PreProcessing <- local({
         Faces
     })
 
-    list(Edges=GetEdges, Faces=GetFaces, EdgePoints=EdgePoints, FacePoints=FacePoints,CRF=CaseRotationFlip)
+    ## special
+    ## name : name of the case
+    ## nface: how many cases need to be checked
+    ## sev: whether face 7 need to be checked
+    ## nedge: total number of edges in the lookuptable
+    ## ind: the index needed to check the lookuptable
+    ## position: the corresponding positions in the lookuptable.
+    special <- list(name =  c(3, 4, 6, 7,  10,12,13),
+                    nface=  c(1, 1, 2, 4,  3, 3, 7),
+                    sev =   c(0, 1, 1, 1,  1, 1, 1),
+                    nedge = c(18,24,48,177,96,96,816),
+                    ind = list(c(0,1), c(0,1), c(0,2,1,3),
+                               c(0,8,4,12,2,10,1,9,6,14,5,13,3,11,15,7),
+                               c(0,4,1,5,2,6,3,7),c(0,4,2,6,1,5,3,7),
+                               c(0,1,2,4,8,16,32,3,9,17,33,6,18,34,12,20,36,24,
+                                 40,35,25,22,44,19,41,38,28,83,105,102,92)),
+                    position=list(list(c(1:6),c(7:18)),
+                                  list(c(1:6),c(7:24)),
+                                  list(c(1:9),c(10:33),c(34:48),c(34:48)),
+                                  list(c(1:9),c(1:9),c(10:24),c(10:24),
+                                       c(25:39),c(25:39),c(40:54), c(40:54),
+                                       c(55:81), c(55:81),c(82:108),c(82:108),
+                                       c(109:135),c(109:135),c(136:150),
+                                       c(151:177)),
+                                  list(c(1:12),c(13:36),c(37:60),c(37:60),
+                                       c(61:84), c(61:84),c(85:96),c(85:96)),
+                                  list(c(1:12), c(13:36), c(37:60), c(37:60),
+                                       c(61:84), c(61:84),c(85:96),c(85:96)),
+                                  list(c(1:12),
+                                       c(13:30),c(31:48),c(49:66),c(67:84),
+                                       c(85:102),c(103:120),
+                                       c(121:150),c(151:180),c(181:210),
+                                       c(211:240),c(241:270),c(271:300),
+                                       c(301:330),
+                                       c(331:360),c(361:390),c(391:420),
+                                       c(421:450),c(451:480),
+                                       c(481:516),c(517:552),c(553:588),
+                                       c(589:624),
+                                       c(625:642),c(643:660),c(661:678),
+                                       c(679:696),
+                                       c(697:726),c(727:756),c(757:786),
+                                       c(787:816))
+                                 )
+                    )
+
+    list(Edges = GetEdges, Faces = GetFaces, EdgePoints = EdgePoints,
+         FacePoints = FacePoints, CRF = CaseRotationFlip, special = special)
 }) 
+
+fgrid <- function(fun, x, y, z) {
+    g <- expand.grid(x = x, y = y, z = z)
+    array(fun(g$x, g$y, g$z), c(length(x), length(y), length(z)))
+}
+
+levCells <- function(v, level) {
+    nx <- dim(v)[1]
+    ny <- dim(v)[2]
+    nz <- dim(v)[3]
+    val <- vector("list", nz - 1)
+    type <- vector("list", nz - 1)
+    i <- 1:(nx - 1)
+    j <- 1:(ny - 1)
+    v1 <- v[,,1,drop=TRUE]
+    vv1 <- ifelse(v1 > level, 1, 0)
+
+    ttt1 <- vv1[i,j] + 2 * vv1[i+1,j] + 4 * vv1[i+1,j+1] + 8 * vv1[i,j+1]
+    for (k in 1 : (nz - 1)) {
+        v2 <- v[,,k + 1,drop=TRUE]
+        vv2 <- ifelse(v2 > level, 1, 0)
+        ttt2 <- vv2[i,j] + 2 * vv2[i+1,j] + 4 * vv2[i+1,j+1] + 8 * vv2[i,j+1]
+        ttt <- ttt1 + 16 * ttt2
+        iii <- ttt > 0 & ttt < 255
+        val[[k]] <- which(iii) + (nx - 1) * (ny - 1) * (k - 1)
+        type[[k]] <- as.integer(ttt[iii])
+        v1 <- v2
+        vv1 <- vv2
+        ttt1 <- ttt2
+    }
+    v <- unlist(val)
+    i <- as.integer((v - 1) %% (nx - 1) + 1)
+    j <- as.integer(((v - 1) %/% (nx - 1)) %% (ny - 1) + 1)
+    k <- as.integer((v - 1) %/% ((nx - 1) * (ny - 1)) + 1)
+    t <- unlist(type)
+    NAS <- which(is.na(t))
+    if (length(NAS) > 0) t <- t[-NAS]
+    list(i = i, j = j, k = k, t = t)
+}
+
+CalPoint <- function(x1,x2,y1,y2,z1,z2,v1,v2){
+    s <- v1 / (v1-v2)
+    x <- x1+s*(x2-x1)
+    y <- y1+s*(y2-y1)
+    z <- z1+s*(z2-z1)
+    c(x,y,z)
+}
 
 computeContour3d <- function (f, level,
                               x = 1:dim(f)[1],
@@ -269,45 +362,6 @@ computeContour3d <- function (f, level,
         interface <- 2
     }
     else stop("vol has to be a function or a 3-dimensional array")
-
-    fgrid <- function(fun, x, y, z) {
-        g <- expand.grid(x = x, y = y, z = z)
-        array(fun(g$x, g$y, g$z), c(length(x), length(y), length(z)))
-    }
-
-    levCells <- function(v, level) {
-        nx <- dim(v)[1]
-        ny <- dim(v)[2]
-        nz <- dim(v)[3]
-        val <- vector("list", nz - 1)
-        type <- vector("list", nz - 1)
-        i <- 1:(nx - 1)
-        j <- 1:(ny - 1)
-        v1 <- v[,,1,drop=TRUE]
-        vv1 <- ifelse(v1 > level, 1, 0)
-
-        ttt1 <- vv1[i,j] + 2 * vv1[i+1,j] + 4 * vv1[i+1,j+1] + 8 * vv1[i,j+1]
-        for (k in 1 : (nz - 1)) {
-            v2 <- v[,,k + 1,drop=TRUE]
-            vv2 <- ifelse(v2 > level, 1, 0)
-            ttt2 <- vv2[i,j] + 2 * vv2[i+1,j] + 4 * vv2[i+1,j+1] + 8 * vv2[i,j+1]
-            ttt <- ttt1 + 16 * ttt2
-            iii <- ttt > 0 & ttt < 255
-            val[[k]] <- which(iii) + (nx - 1) * (ny - 1) * (k - 1)
-            type[[k]] <- as.integer(ttt[iii])
-            v1 <- v2
-            vv1 <- vv2
-            ttt1 <- ttt2
-        }
-        v <- unlist(val)
-        i <- as.integer((v - 1) %% (nx - 1) + 1)
-        j <- as.integer(((v - 1) %/% (nx - 1)) %% (ny - 1) + 1)
-        k <- as.integer((v - 1) %/% ((nx - 1) * (ny - 1)) + 1)
-        t <- unlist(type)
-        NAS <- which(is.na(t))
-        if (length(NAS) > 0) t <- t[-NAS]
-        list(i = i, j = j, k = k, t = t)
-    }
 
     GetInfo <- function(cube.1){
         index <- matrix(c(0,1,1,0,0,1,1,0,
@@ -345,14 +399,6 @@ computeContour3d <- function (f, level,
           (1-floor(x1/9))*information[p1+x2-1,3]+floor(x1/9)*information[p1+5,3],
           (1-floor(x1/9))*information[p1+x1-1,4]+floor(x1/9)*(0*information[p1+1,3]+1),
           (1-floor(x1/9))*information[p1+x2-1,4]+floor(x1/9)*(0*information[p1+1,3]-1))
-    }
-
-    CalPoint <- function(x1,x2,y1,y2,z1,z2,v1,v2){
-        s <- v1 / (v1-v2)
-        x <- x1+s*(x2-x1)
-        y <- y1+s*(y2-y1)
-        z <- z1+s*(z2-z1)
-        c(x,y,z)
     }
 
     FaceNo7 <- function(faces, p1){
@@ -423,6 +469,7 @@ computeContour3d <- function (f, level,
     EP <- PreProcessing$EdgePoints
     FP <- PreProcessing$FacePoints
     CR <- PreProcessing$CRF
+    special <- PreProcessing$special
 
     if (interface==1) {
         NAS <- unique(c(which(is.na(x)),which(is.na(y)),which(is.na(z))))
@@ -466,52 +513,6 @@ computeContour3d <- function (f, level,
         edges <- Edges[cases]
         triangles <- PreRender(edges, p1,type=1)
     }
-
-    ## special
-    ## name : name of the case
-    ## nface: how many cases need to be checked
-    ## sev: whether face 7 need to be checked
-    ## nedge: total number of edges in the lookuptable
-    ## ind: the index needed to check the lookuptable
-    ## position: the corresponding positions in the lookuptable.
-    special <- list(name =  c(3, 4, 6, 7,  10,12,13),
-                    nface=  c(1, 1, 2, 4,  3, 3, 7),
-                    sev =   c(0, 1, 1, 1,  1, 1, 1),
-                    nedge = c(18,24,48,177,96,96,816),
-                    ind = list(c(0,1), c(0,1), c(0,2,1,3),
-                               c(0,8,4,12,2,10,1,9,6,14,5,13,3,11,15,7),
-                               c(0,4,1,5,2,6,3,7),c(0,4,2,6,1,5,3,7),
-                             c(0,1,2,4,8,16,32,3,9,17,33,6,18,34,12,20,36,24,
-                               40,35,25,22,44,19,41,38,28,83,105,102,92)),
-                    position=list(list(c(1:6),c(7:18)),
-                                  list(c(1:6),c(7:24)),
-                                  list(c(1:9),c(10:33),c(34:48),c(34:48)),
-                                  list(c(1:9),c(1:9),c(10:24),c(10:24),
-                                       c(25:39),c(25:39),c(40:54), c(40:54),
-                                       c(55:81), c(55:81),c(82:108),c(82:108),
-                                       c(109:135),c(109:135),c(136:150),
-                                       c(151:177)),
-                                  list(c(1:12),c(13:36),c(37:60),c(37:60),
-                                       c(61:84), c(61:84),c(85:96),c(85:96)),
-                                  list(c(1:12), c(13:36), c(37:60), c(37:60),
-                                       c(61:84), c(61:84),c(85:96),c(85:96)),
-                                  list(c(1:12),
-                                       c(13:30),c(31:48),c(49:66),c(67:84),
-                                       c(85:102),c(103:120),
-                                       c(121:150),c(151:180),c(181:210),
-                                       c(211:240),c(241:270),c(271:300),
-                                       c(301:330),
-                                       c(331:360),c(361:390),c(391:420),
-                                       c(421:450),c(451:480),
-                                       c(481:516),c(517:552),c(553:588),
-                                       c(589:624),
-                                       c(625:642),c(643:660),c(661:678),
-                                       c(679:696),
-                                       c(697:726),c(727:756),c(757:786),
-                                       c(787:816))
-                                 )
-                    )
-
 
     for (i in 1:length(special$name)){
         R <- which(tcase == special$name[i])
