@@ -378,6 +378,58 @@ CalPoint <- function(x1,x2,y1,y2,z1,z2,v1,v2){
     c(x,y,z)
 }
 
+GetPoints<-function(edge, p1, info){
+    ##**** need better name than info
+    x1 <- EdgePoints[edge,2]
+    x2 <- EdgePoints[edge,3]
+    c((1-floor(x1/9))*info[p1+x1-1,1]+floor(x1/9)*info[p1,1],
+      (1-floor(x1/9))*info[p1+x2-1,1]+floor(x1/9)*info[p1+1,1],
+      (1-floor(x1/9))*info[p1+x1-1,2]+floor(x1/9)*info[p1+1,2],
+      (1-floor(x1/9))*info[p1+x2-1,2]+floor(x1/9)*info[p1+2,2],
+      (1-floor(x1/9))*info[p1+x1-1,3]+floor(x1/9)*info[p1+1,3],
+      (1-floor(x1/9))*info[p1+x2-1,3]+floor(x1/9)*info[p1+5,3],
+      (1-floor(x1/9))*info[p1+x1-1,4]+floor(x1/9)*(0*info[p1+1,3]+1),
+      (1-floor(x1/9))*info[p1+x2-1,4]+floor(x1/9)*(0*info[p1+1,3]-1))
+}
+
+FaceNo7 <- function(faces, p1, info){
+    ##**** need better name than info
+    index <- ifelse(faces > 0, 1, -1)
+    faces <- abs(faces)
+    e1 <- FacePoints[faces,2]
+    e2 <- FacePoints[faces,3]
+    e3 <- FacePoints[faces,4]
+    e4 <- FacePoints[faces,5]
+    A <- info[p1+e1-1,4]
+    B <- info[p1+e2-1,4]
+    C <- info[p1+e3-1,4]
+    D <- info[p1+e4-1,4]
+    index <- index*ifelse (A*B-C*D > 0, 1, -1)
+    index <- ifelse(index==1, 1, 0)
+    index
+}
+
+Face7 <- function(faces, p1, info){
+    index <- ifelse(faces > 0, 1, -1)
+    A0 <- info[p1,4];   B0 <- info[p1+3,4]
+    C0 <- info[p1+2,4]; D0 <- info[p1+1,4]
+    A1 <- info[p1+4,4]; B1 <- info[p1+7,4]
+    C1 <- info[p1+6,4]; D1 <- info[p1+5,4]
+    a <- (A1 - A0)*(C1 - C0) - (B1 - B0)*(D1 - D0)
+    b <- C0*(A1 - A0) + A0*(C1 - C0) - D0*(B1 - B0) - B0*(D1 - D0)
+    c <- A0*C0 - B0*D0
+    tmax <- -b/(2*a)
+    maximum <- a*tmax^2 + b*tmax + c
+    maximum <- ifelse(maximum=="NaN",-1,maximum)
+    cond1 <- ifelse (a < 0, 1 ,0)
+    cond2 <- ifelse (tmax > 0, 1 ,0)
+    cond3 <- ifelse (tmax < 1, 1, 0)
+    cond4 <- ifelse (maximum >0, 1, 0)
+    totalcond <- cond1 * cond2 * cond3 * cond4
+    index <- index*ifelse(totalcond==1, 1, -1)
+    index <- ifelse(index==1, 1, 0)
+}
+
 computeContour3d <- function (f, level,
                               x = 1:dim(f)[1],
                               y = 1:dim(f)[2],
@@ -406,57 +458,6 @@ computeContour3d <- function (f, level,
     else stop("vol has to be a function or a 3-dimensional array")
     ##**** check for an empty contour?
 
-    ##**** Lift out by adding information argument (rename for clarity?)
-    GetPoints<-function(edge,p1){
-        x1 <- EdgePoints[edge,2]
-        x2 <- EdgePoints[edge,3]
-        c((1-floor(x1/9))*information[p1+x1-1,1]+floor(x1/9)*information[p1,1],
-          (1-floor(x1/9))*information[p1+x2-1,1]+floor(x1/9)*information[p1+1,1],
-          (1-floor(x1/9))*information[p1+x1-1,2]+floor(x1/9)*information[p1+1,2],
-          (1-floor(x1/9))*information[p1+x2-1,2]+floor(x1/9)*information[p1+2,2],
-          (1-floor(x1/9))*information[p1+x1-1,3]+floor(x1/9)*information[p1+1,3],
-          (1-floor(x1/9))*information[p1+x2-1,3]+floor(x1/9)*information[p1+5,3],
-          (1-floor(x1/9))*information[p1+x1-1,4]+floor(x1/9)*(0*information[p1+1,3]+1),
-          (1-floor(x1/9))*information[p1+x2-1,4]+floor(x1/9)*(0*information[p1+1,3]-1))
-    }
-
-    FaceNo7 <- function(faces, p1){
-        index <- ifelse(faces > 0, 1, -1)
-        faces <- abs(faces)
-        e1 <- FacePoints[faces,2]
-        e2 <- FacePoints[faces,3]
-        e3 <- FacePoints[faces,4]
-        e4 <- FacePoints[faces,5]
-        A <- information[p1+e1-1,4]
-        B <- information[p1+e2-1,4]
-        C <- information[p1+e3-1,4]
-        D <- information[p1+e4-1,4]
-        index <- index*ifelse (A*B-C*D > 0, 1, -1)
-        index <- ifelse(index==1, 1, 0)
-        index
-    }
-
-    Face7 <- function(faces, p1){
-        index <- ifelse(faces > 0, 1, -1)
-        A0 <- information[p1,4];   B0 <- information[p1+3,4]
-        C0 <- information[p1+2,4]; D0 <- information[p1+1,4]
-        A1 <- information[p1+4,4]; B1 <- information[p1+7,4]
-        C1 <- information[p1+6,4]; D1 <- information[p1+5,4]
-        a <- (A1 - A0)*(C1 - C0) - (B1 - B0)*(D1 - D0)
-        b <- C0*(A1 - A0) + A0*(C1 - C0) - D0*(B1 - B0) - B0*(D1 - D0)
-        c <- A0*C0 - B0*D0
-        tmax <- -b/(2*a)
-        maximum <- a*tmax^2 + b*tmax + c
-        maximum <- ifelse(maximum=="NaN",-1,maximum)
-        cond1 <- ifelse (a < 0, 1 ,0)
-        cond2 <- ifelse (tmax > 0, 1 ,0)
-        cond3 <- ifelse (tmax < 1, 1, 0)
-        cond4 <- ifelse (maximum >0, 1, 0)
-        totalcond <- cond1 * cond2 * cond3 * cond4
-        index <- index*ifelse(totalcond==1, 1, -1)
-        index <- ifelse(index==1, 1, 0)
-    }
-
     PreRender <- function(edges,p1,type){
         if(type==1){
             if (typeof(edges)=="list"){
@@ -475,7 +476,7 @@ computeContour3d <- function (f, level,
             count <- ncol(edges) - 1
             edges <- cbind(as.vector(t(edges[, -1])), rep(p1, each = count))
         }
-        information <- GetPoints(edges[,1],edges[,2])
+        information <- GetPoints(edges[,1],edges[,2], information)
         information <- matrix(information,ncol=8)
         information <- CalPoint(information[,1],information[,2],information[,3],information[,4],
                                 information[,5],information[,6],information[,7],information[,8])
@@ -530,13 +531,13 @@ computeContour3d <- function (f, level,
             faces <- matrix(unlist(Faces[cases]), ncol = nface, byrow = TRUE)
 
             if (i==1)
-                index <- FaceNo7(faces[, 1], p1)
+                index <- FaceNo7(faces[, 1], p1, information)
             else if (i==2)
-                index <- Face7(faces[, 1], p1)
+                index <- Face7(faces[, 1], p1, information)
             else{
-                index <-  Face7(faces[, nface], p1)*2^(nface-1)
+                index <-  Face7(faces[, nface], p1, information)*2^(nface-1)
                 for(j in 1:(nface-1)){
-                    temp <-  FaceNo7(faces[, j], p1)
+                    temp <-  FaceNo7(faces[, j], p1, information)
                     index <- index + temp * 2^(j-1)
                 }
             }
