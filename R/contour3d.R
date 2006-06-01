@@ -398,24 +398,6 @@ computeContour3d <- function (f, level,
     else stop("vol has to be a function or a 3-dimensional array")
     ##**** check for an empty contour?
 
-    ##**** merge into GetBasic
-    GetInfo <- function(cube.1){
-        index <- matrix(c(0,1,1,0,0,1,1,0,
-                          0,0,1,1,0,0,1,1,
-                          0,0,0,0,1,1,1,1),
-                        nrow=8)
-        ax.inc <- c(1,1,1)
-
-        ver.inc <- t(apply(index,1, function(x) x*ax.inc))
-        cube.co <-
-            kronecker(rep(1,nrow(cube.1)),ver.inc) + kronecker(cube.1,rep(1,8))
-
-        value <- apply(cube.co, 1,
-                       function(x) vol[x[1], x[2], x[3]]) - level
-        information <- cbind(cube.co, value)
-        information
-    }
-
     ##**** Lift out by adding information argument (rename for clarity?)
     GetPoints<-function(edge,p1){
         x1 <- EP[edge,2]
@@ -502,7 +484,19 @@ computeContour3d <- function (f, level,
 
     GetBasic <- function(R){
         cube.1 <- cbind(v$i[R], v$j[R], v$k[R])
-        information <- GetInfo(cube.1)
+        index <- matrix(c(0,1,1,0,0,1,1,0,
+                          0,0,1,1,0,0,1,1,
+                          0,0,0,0,1,1,1,1),
+                        nrow=8)
+        ax.inc <- c(1,1,1)
+
+        ver.inc <- t(apply(index,1, function(x) x*ax.inc))
+        cube.co <-
+            kronecker(rep(1,nrow(cube.1)),ver.inc) + kronecker(cube.1,rep(1,8))
+
+        value <- apply(cube.co, 1,
+                       function(x) vol[x[1], x[2], x[3]]) - level
+        information <- cbind(cube.co, value)
         information <- rbind(information, rep(0, 4))
         p1 <- (1:length(R) - 1) * 8 + 1
         cases <- v$t[R]
