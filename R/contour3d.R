@@ -356,10 +356,25 @@ computeContour3d <- function (f, level,
                               x = 1:dim(f)[1],
                               y = 1:dim(f)[2],
                               z = 1:dim(f)[3]) {
-    if (typeof(f) == "closure")
-        interface <- 1
+    if (typeof(f) == "closure") {
+        NAS <- unique(c(which(is.na(x)),which(is.na(y)),which(is.na(z))))
+        if (length(NAS) > 0){
+            x <- x[-NAS]
+            y <- y[-NAS]
+            z <- z[-NAS]
+        }
+        nx <- length(x)
+        ny <- length(y)
+        nz <- length(z)
+        vol <- fgrid(f, x, y, z)
+    }
     else if (is.array(f) && length(dim(f)) == 3) {
-        interface <- 2
+        nx <- dim(f)[1]
+        ny <- dim(f)[2]
+        nz <- dim(f)[3]
+        if (length(x) != nx || length(y) != ny || length(z) != nz)
+            stop("dimensions of f do not match x, y, or z")
+        vol <- f
     }
     else stop("vol has to be a function or a 3-dimensional array")
 
@@ -368,23 +383,15 @@ computeContour3d <- function (f, level,
                           0,0,1,1,0,0,1,1,
                           0,0,0,0,1,1,1,1),
                         nrow=8)
-        if (interface==1)
-            ax.inc <- c(x[2]-x[1],y[2]-y[1],z[2]-z[1])
-        else  ax.inc <- c(1,1,1)
+        ax.inc <- c(1,1,1)
 
         ver.inc <- t(apply(index,1, function(x) x*ax.inc))
         cube.co <-
             kronecker(rep(1,nrow(cube.1)),ver.inc) + kronecker(cube.1,rep(1,8))
 
-        if (interface==1)
-            value <- f(cube.co[,1], cube.co[,2], cube.co[,3])-level
-        else
-            value <- apply(cube.co, 1,
-                           function(x) vol[x[1], x[2], x[3]]) - level
-        if(interface==1)
-            information <- cbind(cube.co, value)
-        else information <-
-            cbind(x[cube.co[,1]],y[cube.co[,2]],z[cube.co[,3]], value)
+        value <- apply(cube.co, 1,
+                       function(x) vol[x[1], x[2], x[3]]) - level
+        information <- cbind(cube.co, value)
         information
     }
 
@@ -471,29 +478,8 @@ computeContour3d <- function (f, level,
     CR <- PreProcessing$CRF
     special <- PreProcessing$special
 
-    if (interface==1) {
-        NAS <- unique(c(which(is.na(x)),which(is.na(y)),which(is.na(z))))
-        if (length(NAS) > 0){
-            x <- x[-NAS]
-            y <- y[-NAS]
-            z <- z[-NAS]
-        }
-        vol <- fgrid(f, x, y, z)
-    }
-    else vol <- f
-
-    if  (interface==2){
-        nx <- dim(vol)[1]
-        ny <- dim(vol)[2]
-        nz <- dim(vol)[3]
-        if (length(x) != nx || length(y) != ny || length(z) != nz)
-            stop("dimensions of f do not match x, y, or z")
-    }
-
     GetBasic <- function(R){
-        if (interface == 1)
-            cube.1 <- cbind(x[v$i[R]], y[v$j[R]], z[v$k[R]])
-        else cube.1 <- cbind(v$i[R], v$j[R], v$k[R])
+        cube.1 <- cbind(v$i[R], v$j[R], v$k[R])
         information <- GetInfo(cube.1)
         information <- rbind(information, rep(0, 4))
         p1 <- (1:length(R) - 1) * 8 + 1
@@ -550,7 +536,8 @@ computeContour3d <- function (f, level,
         }
     }
 
-   triangles
+    ##**** interpolate x, y, z values here if needed
+    triangles
 }
 
 contour3d <- function(f, level,
