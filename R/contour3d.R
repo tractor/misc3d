@@ -320,8 +320,16 @@ PreProcessing <- local({
                     )
 
     list(Edges = GetEdges, Faces = GetFaces, EdgePoints = EdgePoints,
-         FacePoints = FacePoints, CRF = CaseRotationFlip, special = special)
+         FacePoints = FacePoints, CaseRotationFlip = CaseRotationFlip,
+         special = special)
 }) 
+
+Faces <- PreProcessing$Faces
+Edges <- PreProcessing$Edges
+EdgePoints <- PreProcessing$EdgePoints
+FacePoints <- PreProcessing$FacePoints
+CaseRotationFlip <- PreProcessing$CaseRotationFlip
+special <- PreProcessing$special
 
 fgrid <- function(fun, x, y, z) {
     g <- expand.grid(x = x, y = y, z = z)
@@ -400,8 +408,8 @@ computeContour3d <- function (f, level,
 
     ##**** Lift out by adding information argument (rename for clarity?)
     GetPoints<-function(edge,p1){
-        x1 <- EP[edge,2]
-        x2 <- EP[edge,3]
+        x1 <- EdgePoints[edge,2]
+        x2 <- EdgePoints[edge,3]
         c((1-floor(x1/9))*information[p1+x1-1,1]+floor(x1/9)*information[p1,1],
           (1-floor(x1/9))*information[p1+x2-1,1]+floor(x1/9)*information[p1+1,1],
           (1-floor(x1/9))*information[p1+x1-1,2]+floor(x1/9)*information[p1+1,2],
@@ -415,10 +423,10 @@ computeContour3d <- function (f, level,
     FaceNo7 <- function(faces, p1){
         index <- ifelse(faces > 0, 1, -1)
         faces <- abs(faces)
-        e1 <- FP[faces,2]
-        e2 <- FP[faces,3]
-        e3 <- FP[faces,4]
-        e4 <- FP[faces,5]
+        e1 <- FacePoints[faces,2]
+        e2 <- FacePoints[faces,3]
+        e3 <- FacePoints[faces,4]
+        e4 <- FacePoints[faces,5]
         A <- information[p1+e1-1,4]
         B <- information[p1+e2-1,4]
         C <- information[p1+e3-1,4]
@@ -475,13 +483,6 @@ computeContour3d <- function (f, level,
         information
     }
 
-    Faces <- PreProcessing$Faces
-    Edges <- PreProcessing$Edges
-    EP <- PreProcessing$EdgePoints
-    FP <- PreProcessing$FacePoints
-    CR <- PreProcessing$CRF
-    special <- PreProcessing$special
-
     GetBasic <- function(R){
         cube.1 <- cbind(v$i[R], v$j[R], v$k[R])
         index <- matrix(c(0,1,1,0,0,1,1,0,
@@ -504,7 +505,7 @@ computeContour3d <- function (f, level,
    }
 
     v <- levCells(vol, level)
-    tcase <- CR[v$t+1,1]-1
+    tcase <- CaseRotationFlip[v$t+1,1]-1
 
     R <- which(tcase %in% c(1,2,5,8,9,11,14))
     if (length(R) > 0){
