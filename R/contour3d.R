@@ -538,7 +538,7 @@ rescale <- function(i, x) {
 computeContour3d <- function (f, level,
                               x = 1:dim(f)[1],
                               y = 1:dim(f)[2],
-                              z = 1:dim(f)[3]) {
+                              z = 1:dim(f)[3], mask) {
     if (! all(is.finite(x), is.finite(y), is.finite(z)))
         stop("'x', 'y', and 'z' values must be finite and non-missing")
     nx <- length(x)
@@ -553,6 +553,9 @@ computeContour3d <- function (f, level,
     }
     else stop("vol has to be a function or a 3-dimensional array")
 
+    if (is.function(mask)) mask <- fgrid(mask, x, y, z)
+    if (! all(mask)) vol[! mask] <- NA
+    
     v <- levCells(vol, level)
     tcase <- CaseRotationFlip[v$t+1,1]-1
 
@@ -614,12 +617,13 @@ computeContour3d <- function (f, level,
 
 contour3d <- function(f, level,
                       x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
-                      add = FALSE, engine = "rgl", ...){
+                      mask = NULL, add = FALSE, draw = TRUE,
+                      engine = "rgl", ...){
     ##    if( length(level)!= length(color) || length(level)!= length(alpha))
     ##       stop("length of level, color, alpha has to be matched.")
 
-    triangles <- computeContour3d(f,level,x,y,z)
-    if (engine == "rgl") {
+    triangles <- computeContour3d(f, level, x, y, z, mask)
+    if (draw && engine == "rgl") {
         oldstyle = FALSE #*** eventually make this a settable option.
         if (! rgl.cur())
             open3d()
