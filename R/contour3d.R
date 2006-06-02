@@ -405,8 +405,7 @@ FaceNo7 <- function(faces, p1, info){
     C <- info[p1+e3-1,4]
     D <- info[p1+e4-1,4]
     index <- index*ifelse (A*B-C*D > 0, 1, -1)
-    index <- ifelse(index==1, 1, 0)
-    index
+    ifelse(index==1, 1, 0)
 }
 
 Face7 <- function(faces, p1, info){
@@ -427,7 +426,7 @@ Face7 <- function(faces, p1, info){
     cond4 <- ifelse (maximum >0, 1, 0)
     totalcond <- cond1 * cond2 * cond3 * cond4
     index <- index*ifelse(totalcond==1, 1, -1)
-    index <- ifelse(index==1, 1, 0)
+    ifelse(index==1, 1, 0)
 }
 
 GetBasic <- function(R, vol, level, v) {
@@ -449,6 +448,31 @@ GetBasic <- function(R, vol, level, v) {
     p1 <- (1:length(R) - 1) * 8 + 1
     cases <- v$t[R]
     list(information=information, p1 = p1, cases=cases)
+}
+
+PreRender <- function(edges, p1, type, info) {
+    if(type==1){
+        if (typeof(edges)=="list"){
+            count <- sapply(edges, function(x) length(x))
+            edges <- cbind(unlist(edges), rep(p1,count))
+        }
+        else{
+            count <- nrow(edges)
+            edges <- cbind(as.vector(t(edges)), rep(p1,each=count))
+        }
+    }
+    else{
+        if (is.vector(edges))
+            edges <- matrix(edges, ncol = length(edges))
+        p1 <- edges[, 1]
+        count <- ncol(edges) - 1
+        edges <- cbind(as.vector(t(edges[, -1])), rep(p1, each = count))
+    }
+    info <- GetPoints(edges[,1],edges[,2], info)
+    info <- matrix(info,ncol=8)
+    info <- CalPoint(info[,1],info[,2],info[,3],info[,4],
+                            info[,5],info[,6],info[,7],info[,8])
+    matrix(info,ncol=3)
 }
 
 computeContour3d <- function (f, level,
@@ -479,32 +503,6 @@ computeContour3d <- function (f, level,
     else stop("vol has to be a function or a 3-dimensional array")
     ##**** check for an empty contour?
 
-    PreRender <- function(edges,p1,type){
-        if(type==1){
-            if (typeof(edges)=="list"){
-                count <- sapply(edges, function(x) length(x))
-                edges <- cbind(unlist(edges), rep(p1,count))
-            }
-            else{
-                count <- nrow(edges)
-                edges <- cbind(as.vector(t(edges)), rep(p1,each=count))
-            }
-        }
-        else{
-            if (is.vector(edges))
-                edges <- matrix(edges, ncol = length(edges))
-            p1 <- edges[, 1]
-            count <- ncol(edges) - 1
-            edges <- cbind(as.vector(t(edges[, -1])), rep(p1, each = count))
-        }
-        information <- GetPoints(edges[,1],edges[,2], information)
-        information <- matrix(information,ncol=8)
-        information <- CalPoint(information[,1],information[,2],information[,3],information[,4],
-                                information[,5],information[,6],information[,7],information[,8])
-        information <- matrix(information,ncol=3)
-        information
-    }
-
     v <- levCells(vol, level)
     tcase <- CaseRotationFlip[v$t+1,1]-1
 
@@ -515,7 +513,7 @@ computeContour3d <- function (f, level,
         p1 <- Basics$p1
         cases <- Basics$cases
         edges <- Edges[cases]
-        triangles <- PreRender(edges, p1,type=1)
+        triangles <- PreRender(edges, p1,type=1, information)
     }
 
     for (i in 1:length(special$name)){
@@ -548,8 +546,10 @@ computeContour3d <- function (f, level,
 
             for (j in 1:length(ind)){
                 ed <- edges[which(index == ind[j]), c(nedge+1, position[[j]])]
-                if (length(ed) > 0)
-                    triangles <- rbind(triangles, PreRender(ed,nedge+1,type=2))
+                if (length(ed) > 0) {
+                    prtri <- PreRender(ed,nedge+1,type=2, information)
+                    triangles <- rbind(triangles, prtri)
+                }
             }
         }
     }
