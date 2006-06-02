@@ -5,7 +5,8 @@
   Uses rgl to render an isosurface computed by the marching cubes algorithm.
 }
 \usage{
-   contour3d(f, level, x, y, z, add=FALSE, engine = "rgl", ...)
+   contour3d(f, level, x, y, z, mask = NULL, add=FALSE, draw = TRUE,
+             engine = "rgl", ...)
 }
 \arguments{
   \item{f}{a function of 3 arguments or a three dimensional array.}
@@ -14,7 +15,13 @@
   \item{x,y,z}{locations of grid planes at which values in \code{f} are
     measured or \code{f} is evaluated. Can be omitted if \code{f} is an
     array.}
+  \item{mask}{a function of 3 arguments returning a logical array, a
+    three dimensional logical array, or \code{NULL}.  If not
+    \code{NULL}, only cels for which \code{mask} is true at all eight
+    vertices are used in forming the contour.}
   \item{add}{logical; if \code{TRUE}, add to current \code{rgl} graph.}
+  \item{draw}{logical; if \code{TRUE}, draw the results; otherwise,
+    return contour triangles.}
   \item{engine}{character; currently "rgl" or "none"; for "none" the
     computad triangles are returned.}
   \item{...}{material and texture properties. See \code{rgl.material}
@@ -51,6 +58,9 @@
   x <- seq(-2,2,len=20)
   contour3d(f,4,x,x,x)
 
+  # ball with one corner removed.
+  contour3d(f,4,x,x,x, mask = function(x,y,z) x > 0 | y > 0 | z > 0)
+
   #Example 2: Nested contours of mixture of three tri-variate normal densities
   nmix3 <- function(x, y, z, m, s) {
       0.4 * dnorm(x, m, s) * dnorm(y, m, s) * dnorm(z, m, s) +
@@ -80,6 +90,15 @@
             col="red",add=TRUE, alpha=0.5)
   contour3d(aperm(a[,,,1],c(1,3,2)),1:64,1.5*(1:21),1:64,lev=10000,
             col="green",add=TRUE)
+
+  # alternative masking out a corner
+  m <- array(TRUE, dim(a)[-4])
+  m[1:30,1:30,1:10] <- FALSE
+  contour3d(a[,,,1],1:64,1:64,1.5*(1:21),lev=3000, mask = m)
+  contour3d(a[,,,1],1:64,1:64,1.5*(1:21),lev=8000, col="red",
+            add=TRUE, mask = m)
+  contour3d(a[,,,1],1:64,1:64,1.5*(1:21),lev=10000,col="green",
+            add=TRUE, mask = m)
   }
 }
 \keyword{hplot}
