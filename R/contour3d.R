@@ -384,6 +384,7 @@ CalPoint <- function(x1,x2,y1,y2,z1,z2,v1,v2){
 
 GetPoints<-function(edge, p1, info){
     ##**** need better name than info
+    ##info is the output from GetBasic()
     x1 <- EdgePoints[edge,2]
     x2 <- EdgePoints[edge,3]
     c((1-floor(x1/9))*info[p1+x1-1,1]+floor(x1/9)*info[p1,1],
@@ -398,6 +399,7 @@ GetPoints<-function(edge, p1, info){
 
 FaceNo7 <- function(faces, p1, info){
     ##**** need better name than info
+    ##info is the output from GetBasic()
     index <- ifelse(faces > 0, 1, -1)
     faces <- abs(faces)
     e1 <- FacePoints[faces,2]
@@ -413,6 +415,7 @@ FaceNo7 <- function(faces, p1, info){
 }
 
 Face7 <- function(faces, p1, info){
+    ##info is the output from GetBasic()
     index <- ifelse(faces > 0, 1, -1)
     A0 <- info[p1,4];   B0 <- info[p1+3,4]
     C0 <- info[p1+2,4]; D0 <- info[p1+1,4]
@@ -433,6 +436,11 @@ Face7 <- function(faces, p1, info){
     ifelse(index==1, 1, 0)
 }
 
+
+##GetBasic()---  The output matrix "information" consists of 4 columns and #-of-cubes*8 rows.
+##                 The first 3 columns tell the coordinate(x,y,z) of each vertex of the cube, 
+##                 the 4th gives the intensity minus the threshold, which actually makes the threshold eaqual to 0. This is convenient
+##                 for further judgment of subcases
 GetBasic <- function(R, vol, level, v) {
     cube.1 <- cbind(v$i[R], v$j[R], v$k[R])
     index <- matrix(c(0,1,1,0,0,1,1,0,
@@ -472,8 +480,10 @@ PreRender <- function(edges, p1, type, info) {
         count <- ncol(edges) - 1
         edges <- cbind(as.vector(t(edges[, -1])), rep(p1, each = count))
     }
+    ##The output of GetPoints() are coordinates of cubes.
     info <- GetPoints(edges[,1],edges[,2], info)
     info <- matrix(info,ncol=8)
+    ##The output of CalPoint() are coordinates of triangles.
     info <- CalPoint(info[,1],info[,2],info[,3],info[,4],
                             info[,5],info[,6],info[,7],info[,8])
     matrix(info,ncol=3)
