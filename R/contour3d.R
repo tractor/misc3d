@@ -430,6 +430,27 @@ Face7 <- function(faces, p1, info){
     index <- ifelse(index==1, 1, 0)
 }
 
+GetBasic <- function(R, vol, level, v) {
+    cube.1 <- cbind(v$i[R], v$j[R], v$k[R])
+    index <- matrix(c(0,1,1,0,0,1,1,0,
+                      0,0,1,1,0,0,1,1,
+                      0,0,0,0,1,1,1,1),
+                    nrow=8)
+    ax.inc <- c(1,1,1)
+
+    ver.inc <- t(apply(index,1, function(x) x*ax.inc))
+    cube.co <-
+        kronecker(rep(1,nrow(cube.1)),ver.inc) + kronecker(cube.1,rep(1,8))
+
+    value <- apply(cube.co, 1,
+                   function(x) vol[x[1], x[2], x[3]]) - level
+    information <- cbind(cube.co, value)
+    information <- rbind(information, rep(0, 4))
+    p1 <- (1:length(R) - 1) * 8 + 1
+    cases <- v$t[R]
+    list(information=information, p1 = p1, cases=cases)
+}
+
 computeContour3d <- function (f, level,
                               x = 1:dim(f)[1],
                               y = 1:dim(f)[2],
@@ -484,33 +505,12 @@ computeContour3d <- function (f, level,
         information
     }
 
-    GetBasic <- function(R){
-        cube.1 <- cbind(v$i[R], v$j[R], v$k[R])
-        index <- matrix(c(0,1,1,0,0,1,1,0,
-                          0,0,1,1,0,0,1,1,
-                          0,0,0,0,1,1,1,1),
-                        nrow=8)
-        ax.inc <- c(1,1,1)
-
-        ver.inc <- t(apply(index,1, function(x) x*ax.inc))
-        cube.co <-
-            kronecker(rep(1,nrow(cube.1)),ver.inc) + kronecker(cube.1,rep(1,8))
-
-        value <- apply(cube.co, 1,
-                       function(x) vol[x[1], x[2], x[3]]) - level
-        information <- cbind(cube.co, value)
-        information <- rbind(information, rep(0, 4))
-        p1 <- (1:length(R) - 1) * 8 + 1
-        cases <- v$t[R]
-        list(information=information, p1 = p1, cases=cases)
-   }
-
     v <- levCells(vol, level)
     tcase <- CaseRotationFlip[v$t+1,1]-1
 
     R <- which(tcase %in% c(1,2,5,8,9,11,14))
     if (length(R) > 0){
-        Basics <- GetBasic(R)
+        Basics <- GetBasic(R, vol, level, v)
         information <- Basics$information
         p1 <- Basics$p1
         cases <- Basics$cases
@@ -521,7 +521,7 @@ computeContour3d <- function (f, level,
     for (i in 1:length(special$name)){
         R <- which(tcase == special$name[i])
         if (length(R) > 0) {
-            Basics <- GetBasic(R)
+            Basics <- GetBasic(R, vol, level, v)
             information <- Basics$information
             p1 <- Basics$p1
             cases <- Basics$cases
