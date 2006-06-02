@@ -1,7 +1,6 @@
 ##**** need some more examples/test cases
-#***** check empty contour case
+##**** check empty contour case
 ##**** Sort out NA handling
-##**** interpolate to x, y, z values
 ##**** allow mask array/function
 ##**** allow color array/function
 ##**** allow multiple levels
@@ -9,12 +8,11 @@
 ##**** have rgl verison return matrix?
 ##**** add standard, grid versions
 
-##**** redo with 21 cases, breaking face ambiguity by always cutting
-##**** off high vertices.  Always going for shorter face contour is probably
-##**** much harder?
-##**** allow processing of one slice at a time (maybe even for multiple
+##**** Redo with 21 cases, breaking face ambiguity by always cutting
+##**** off high vertices.
+##**** Allow processing of one slice at a time (maybe even for multiple
 ##**** contours?)
-##**** is the 'special' stuff ever used??
+##**** Need more complete documentation/commenting
 
 PreProcessing <- local({
     explode <- function(x)
@@ -475,6 +473,12 @@ PreRender <- function(edges, p1, type, info) {
     matrix(info,ncol=3)
 }
 
+rescale <- function(i, x) {
+    nx <- length(x)
+    low <- pmin(pmax(1, floor(i)), nx - 1)
+    x[low] + (i - low) * (x[low + 1] - x[low])
+}
+
 computeContour3d <- function (f, level,
                               x = 1:dim(f)[1],
                               y = 1:dim(f)[2],
@@ -554,7 +558,10 @@ computeContour3d <- function (f, level,
         }
     }
 
-    ##**** interpolate x, y, z values here if needed
+    if (! identical(x, 1 : nx)) triangles[,1] <- rescale(triangles[,1], x)
+    if (! identical(y, 1 : ny)) triangles[,2] <- rescale(triangles[,2], y)
+    if (! identical(z, 1 : nz)) triangles[,3] <- rescale(triangles[,3], z)
+
     triangles
 }
 
