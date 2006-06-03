@@ -68,3 +68,25 @@ colorScene <- function(scene) {
         colorTriangles(scene)
     else lapply(scene, colorTriangles)
 }
+
+## **** better to make new triangles including only requested components?
+canonicalizeAndMergeScene <- function(scene, ...) {
+    which <- list(...)
+    if (is.Triangles3D(scene)) {
+        n.tri <- nrow(scene$v1)
+        for (n in which)
+            if (length(scene[[n]]) != n.tri)
+                scene[[n]] <- rep(scene[[n]], length = n.tri)
+        scene
+    }
+    else {
+        scene <- lapply(scene, canonicalizeAndMergeScene, ...)
+        x <- scene[[1]]
+        x$v1 <- do.call(rbind, lapply(scene, function(x) x$v1))
+        x$v2 <- do.call(rbind, lapply(scene, function(x) x$v2))
+        x$v3 <- do.call(rbind, lapply(scene, function(x) x$v3))
+        for (n in which)
+            x[[n]] <- do.call(c, lapply(scene, function(x) x[[n]]))
+        x
+    }
+}
