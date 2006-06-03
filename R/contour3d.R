@@ -1,10 +1,4 @@
 ##**** need some more examples/test cases
-##**** check empty contour case
-##**** Sort out NA handling
-##**** allow mask array/function
-##**** allow color array/function
-##**** allow multiple levels
-##**** add 'draw' argument
 ##**** have rgl verison return matrix?
 ##**** add standard, grid versions
 
@@ -615,24 +609,80 @@ computeContour3d <- function (f, level,
     triangles
 }
 
+contourTriangles <- function(f, level,
+                             x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
+                             mask = NULL, color = "white", alpha = 1) {
+    if (length(level) > 1) {
+        val <- vector("list", length(level))
+        for (i in seq(along = level)) {
+            m <- if (is.list(mask)) mask[[i]] else mask
+            col <- if (length(color) > 1) color[[i]] else color
+            a <- if (length(alpha) > 1) alpha[[i]] else alpha
+            val[[i]] <- contourTriangles(f, level[i], x, y, z, m, col, a)
+        }
+        val
+    }
+    else {
+        list(triangles = computeContour3d(f, level, x, y, z, mask),
+             color = color, alpha = alpha)
+    }
+}
+
+canonicalizeTriangles <- function(tris) {
+    if (is.null(tris$triangles)) {
+        if (length(tris) > 0 && is.null(tris[[1]]$triangles))
+            stop("bad triangles data")
+        lapply(tris, canonicalizeTriangles)
+    }
+    else {
+        if (is.function(tris$color)) {
+            i.tri <- 1 : (nrow(tris$triangles) / 3)
+            v1 <- tris$triangles[3 * i.tri - 2,]
+            v2 <- tris$triangles[3 * i.tri - 1,]
+            v3 <- tris$triangles[3 * i.tri - 0,]
+            v <- (v1 + v2 + v3) / 3
+            tris$color <- rep(tris$color(v[,1], v[,2], v[,3]), each = 3)
+        }
+        tris$color <- rep(tris$color, length = nrow(tris$triangles))
+        tris$alpha <- rep(tris$alpha, length = nrow(tris$triangles))
+        tris
+    }
+}
+
+mergeTriangles <- function(tris) {
+    if (is.null(tris$triangles)) {
+        if (length(tris) > 0 && is.null(tris[[1]]$triangles))
+            stop("bad triangles data")
+        triangles <- do.call(rbind, lapply(tris, function(x) x$triangles))
+        color <- do.call(c, lapply(tris, function(x) x$color))
+        alpha <- do.call(c, lapply(tris, function(x) x$alpha))
+        list(triangles = triangles, color = color, alpha = alpha)
+    }
+    else tris
+}
+    
 contour3d <- function(f, level,
                       x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
-                      mask = NULL, add = FALSE, draw = TRUE,
-                      engine = "rgl", ...){
-    ##    if( length(level)!= length(color) || length(level)!= length(alpha))
-    ##       stop("length of level, color, alpha has to be matched.")
-
-    triangles <- computeContour3d(f, level, x, y, z, mask)
+                      mask = NULL, color = "white", alpha = 1,
+                      add = FALSE, draw = TRUE, engine = "rgl", ...){
+    triangles <- contourTriangles(f, level, x, y, z, mask, color, alpha)
     if (draw && engine == "rgl") {
+        triangles <- mergeTriangles(canonicalizeTriangles(triangles))
+        data <- triangles$triangles
+        col <- triangles$color
+        alpha <- triangles$alpha
         oldstyle = FALSE #*** eventually make this a settable option.
+        if (oldstyle) {
+            data <- data[,c(1, 3, 2)]
+            data[,3] <- -data[,3]
+        }
         if (! rgl.cur())
             open3d()
         if (!add)
             rgl.clear()
-        if (oldstyle)
-            rgl.triangles(triangles[,1], triangles[,3], -triangles[,2],...)
-        else
-            rgl.triangles(triangles[,1], triangles[,2], triangles[,3],...)
+        if (nrow(data) > 0)
+            rgl.triangles(data[,1], data[,2], data[,3],
+                          col = col, alpha = alpha, ...)
     }
     else triangles
 }
