@@ -49,3 +49,22 @@ zipTriangles <- function(tris) {
     v[3 * (1 : n),] <- tris$v3
     v
 }
+
+colorTriangles <- function(triangles) {
+    if (is.function(triangles$color) || is.function(triangles$color2)) {
+        v <- (triangles$v1 + triangles$v2 + triangles$v3) / 3
+        if (is.function(triangles$color))
+            triangles$color <- triangles$color(v[,1], v[,2], v[,3])
+        if (is.function(triangles$color2))
+            triangles$color2 <- triangles$color2(v[,1], v[,2], v[,3])
+        if (is.function(triangles$col.mesh))
+            triangles$col.mesh <- triangles$col.mesh(v[,1], v[,2], v[,3])
+    }
+    triangles
+}
+
+colorScene <- function(scene) {
+    if (is.Triangles3D(scene))
+        colorTriangles(scene)
+    else lapply(scene, colorTriangles)
+}
