@@ -611,7 +611,7 @@ computeContour3d <- function (f, level,
 contourTriangles <- function(f, level,
                              x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
                              mask = NULL, color = "white", alpha = 1,
-                             fill = TRUE) {
+                             fill = TRUE, col.mesh = if (fill) NA else color) {
     if (length(level) > 1) {
         val <- vector("list", length(level))
         for (i in seq(along = level)) {
@@ -619,13 +619,15 @@ contourTriangles <- function(f, level,
             col <- if (length(color) > 1) color[[i]] else color
             a <- if (length(alpha) > 1) alpha[[i]] else alpha
             fl <- if (length(fill) > 1) fill[[i]] else fill
-            val[[i]] <- contourTriangles(f, level[i], x, y, z, m, col, a, fl)
+            cm <- if (length(col.mesh) > 1) col.mesh[[i]] else col.mesh
+            val[[i]] <- contourTriangles(f, level[i], x, y, z, m, col, a,
+                                         fl, cm)
         }
         val
     }
     else {
         list(triangles = computeContour3d(f, level, x, y, z, mask),
-             color = color, alpha = alpha, fill = fill)
+             color = color, alpha = alpha, fill = fill, col.mesh = col.mesh)
     }
 }
 
@@ -647,6 +649,7 @@ canonicalizeTriangles <- function(tris) {
         tris$color <- rep(tris$color, length = nrow(tris$triangles))
         tris$alpha <- rep(tris$alpha, length = nrow(tris$triangles))
         tris$fill <- rep(tris$fill, length = nrow(tris$triangles))
+        tris$col.mesh <- rep(tris$col.mesh, length = nrow(tris$triangles))
         tris
     }
 }
@@ -659,7 +662,9 @@ mergeTriangles <- function(tris) {
         color <- do.call(c, lapply(tris, function(x) x$color))
         alpha <- do.call(c, lapply(tris, function(x) x$alpha))
         fill <- do.call(c, lapply(tris, function(x) x$fill))
-        list(triangles = triangles, color = color, alpha = alpha, fill = fill)
+        col.mesh <- do.call(c, lapply(tris, function(x) x$col.mesh))
+        list(triangles = triangles, color = color, alpha = alpha,
+             fill = fill, col.mesh = col.mesh)
     }
     else tris
 }
@@ -667,8 +672,10 @@ mergeTriangles <- function(tris) {
 contour3d <- function(f, level,
                       x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
                       mask = NULL, color = "white", alpha = 1, fill = TRUE,
+                      col.mesh = if (fill) NA else color,
                       add = FALSE, draw = TRUE, engine = "rgl", ...){
-    triangles <- contourTriangles(f, level, x, y, z, mask, color, alpha, fill)
+    triangles <- contourTriangles(f, level, x, y, z, mask, color, alpha,
+                                  fill, col.mesh)
     if (! draw || engine == "none")
         triangles
     else if (engine == "rgl") {
