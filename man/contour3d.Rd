@@ -5,25 +5,33 @@
   Uses rgl to render an isosurface computed by the marching cubes algorithm.
 }
 \usage{
-   contour3d(f, level, x, y, z, mask = NULL, add=FALSE, draw = TRUE,
-             engine = "rgl", ...)
+   contour3d(f, level, x, y, z, mask = NULL, color = "white", alpha = 1, 
+             add = FALSE, draw = TRUE, engine = "rgl", ...)
 }
 \arguments{
   \item{f}{a function of 3 arguments or a three dimensional array.}
-  \item{level}{numeric scalar. The value according to which to draw the
-    isosurface.}
+  \item{level}{The level or levels at which to construct contour surfaces.}
   \item{x,y,z}{locations of grid planes at which values in \code{f} are
-    measured or \code{f} is evaluated. Can be omitted if \code{f} is an
-    array.}
+    measured or \code{f} is to be evaluated. Can be omitted if \code{f}
+    is an array.}
   \item{mask}{a function of 3 arguments returning a logical array, a
     three dimensional logical array, or \code{NULL}.  If not
     \code{NULL}, only cels for which \code{mask} is true at all eight
-    vertices are used in forming the contour.}
+    vertices are used in forming the contour.  Can also be a lsit of
+    functions the same length as \code{level}.}
+  \item{color}{color to use for the contour surface. Recycled to the
+    length of \code{'levels'}. Can also be a function, of list of
+    functions, of three arguments.  These are called for each level with
+    three arguments, the coordiantes of the midpoints of the triangles
+    making up the surface.  They should return a vector of colors to use
+    for the triangles.}
+  \item{alpha}{alpha channel level, a number between 0 and 1. Recycled to the
+    length of \code{'levels'}.}
   \item{add}{logical; if \code{TRUE}, add to current \code{rgl} graph.}
   \item{draw}{logical; if \code{TRUE}, draw the results; otherwise,
     return contour triangles.}
   \item{engine}{character; currently "rgl" or "none"; for "none" the
-    computad triangles are returned.}
+    computed triangles are returned.}
   \item{...}{material and texture properties. See \code{rgl.material}
     for details.}
 }
@@ -61,6 +69,16 @@
   # ball with one corner removed.
   contour3d(f,4,x,x,x, mask = function(x,y,z) x > 0 | y > 0 | z > 0)
 
+  # ball with computed colors
+  w <- function(x,y,z) {
+      v <- sin(x) + cos(2 * y) * sin(5 * z)
+      r <- range(v)
+      n <- 100
+      i <- pmax(pmin(ceiling(n * (v - r[1]) / (r[2] - r[1])), n), 1)
+      terrain.colors(n)[i]
+  }
+  contour3d(f,4,x,x,x, color = w)
+
   #Example 2: Nested contours of mixture of three tri-variate normal densities
   nmix3 <- function(x, y, z, m, s) {
       0.4 * dnorm(x, m, s) * dnorm(y, m, s) * dnorm(z, m, s) +
@@ -73,10 +91,7 @@
       col <- rev(cmap(length(th)))
       al <- seq(alo, ahi, len = length(th))
       x <- seq(-2, 2, len=n)
-      for (i in seq(along = th)) {
-           contour3d(f,th[i],x,x,x,color=col[i],alpha=al[i],
-                     add = (i != 1))
-      }
+      contour3d(f,th,x,x,x,color=col,alpha=al)
       rgl.bg(col="white")
   }
   g(40,5)
