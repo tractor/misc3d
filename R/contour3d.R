@@ -669,7 +669,9 @@ contour3d <- function(f, level,
                       mask = NULL, color = "white", alpha = 1, fill = TRUE,
                       add = FALSE, draw = TRUE, engine = "rgl", ...){
     triangles <- contourTriangles(f, level, x, y, z, mask, color, alpha, fill)
-    if (draw && engine == "rgl") {
+    if (! draw || engine == "none")
+        triangles
+    else if (engine == "rgl") {
         triangles <- mergeTriangles(canonicalizeTriangles(triangles))
         data <- triangles$triangles
         col <- triangles$color
@@ -700,5 +702,5 @@ contour3d <- function(f, level,
                           col = col, alpha = alpha,
                           front = front, back = back, ...)
     }
-    else triangles
+    else stop(paste("unknown rendering engine:", engine))
 }
