@@ -6,7 +6,8 @@
 }
 \usage{
    contour3d(f, level, x, y, z, mask = NULL, color = "white", alpha = 1, 
-             fill = TRUE, add = FALSE, draw = TRUE, engine = "rgl", ...)
+             fill = TRUE, col.mesh = if (fill) NA else color,
+             add = FALSE, draw = TRUE, engine = "rgl", ...)
 }
 \arguments{
   \item{f}{a function of 3 arguments or a three dimensional array.}
@@ -30,6 +31,8 @@
   \item{fill}{logical; if \code{TRUE}, drawing should use filled
     surfaces; otherwise a wire frame should be drawn. Recycled to the
     length of \code{'levels'}.}
+  \item{col.mesh}{color to use for the wire frame. Recycled to the
+    length of \code{'levels'}.}
   \item{add}{logical; if \code{TRUE}, add to current \code{rgl} graph.}
   \item{draw}{logical; if \code{TRUE}, draw the results; otherwise,
     return contour triangles.}
@@ -40,7 +43,7 @@
 }
 \details{
   Uses the marching-cubes algorithm, with adjustments for dealing with
-  face and internal ambiguities, to draw the isosurface.
+  face and internal ambiguities, to draw isosurfaces.
   See references for the details.
 }
 \references{
