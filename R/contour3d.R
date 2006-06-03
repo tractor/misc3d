@@ -630,51 +630,20 @@ contourTriangles <- function(f, level,
                        col.mesh = col.mesh)
 }
 
-canonicalizeTriangles <- function(tris) {
-    if (is.null(tris$v1)) {
-        if (length(tris) > 0 && is.null(tris[[1]]$v1))
-            stop("bad triangles data")
-        lapply(tris, canonicalizeTriangles)
-    }
-    else {
-        tris$color <- rep(tris$color, length = nrow(tris$v1))
-        tris$alpha <- rep(tris$alpha, length = nrow(tris$v1))
-        tris$fill <- rep(tris$fill, length = nrow(tris$v1))
-        tris$col.mesh <- rep(tris$col.mesh, length = nrow(tris$v1))
-        tris
-    }
-}
-
-mergeTriangles <- function(tris) {
-    if (is.null(tris$v1)) {
-        if (length(tris) > 0 && is.null(tris[[1]]$v1))
-            stop("bad triangles data")
-        v1 <- do.call(rbind, lapply(tris, function(x) x$v1))
-        v2 <- do.call(rbind, lapply(tris, function(x) x$v2))
-        v3 <- do.call(rbind, lapply(tris, function(x) x$v3))
-        color <- do.call(c, lapply(tris, function(x) x$color))
-        alpha <- do.call(c, lapply(tris, function(x) x$alpha))
-        fill <- do.call(c, lapply(tris, function(x) x$fill))
-        col.mesh <- do.call(c, lapply(tris, function(x) x$col.mesh))
-        list(v1 = v1, v2 = v2, v3 = v3, color = color, alpha = alpha,
-             fill = fill, col.mesh = col.mesh)
-    }
-    else tris
-}
-    
 contour3d <- function(f, level,
                       x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
                       mask = NULL, color = "white", alpha = 1, fill = TRUE,
                       col.mesh = if (fill) NA else color,
                       add = FALSE, draw = TRUE, engine = "rgl", ...){
-    triangles <- contourTriangles(f, level, x, y, z, mask, color, alpha,
-                                  fill, col.mesh)
+    scene <- contourTriangles(f, level, x, y, z, mask, color, alpha,
+                              fill, col.mesh)
     if (! draw || engine == "none")
-        triangles
+        scene
     else {
-        triangles <- colorScene(triangles)
+        scene <- colorScene(scene)
         if (engine == "rgl") {
-            triangles <- mergeTriangles(canonicalizeTriangles(triangles))
+            triangles <- canonicalizeAndMergeScene(scene, "color", "alpha",
+                                                   "col.mesh", "fill")
             triangles$color <- rep(triangles$color, each = 3)
             triangles$alpha <- rep(triangles$alpha, each = 3)
             triangles$fill <- rep(triangles$fill, each = 3)
