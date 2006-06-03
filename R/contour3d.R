@@ -625,45 +625,42 @@ contourTriangles <- function(f, level,
         }
         val
     }
-    else {
-        list(triangles = computeContour3d(f, level, x, y, z, mask),
-             color = color, alpha = alpha, fill = fill, col.mesh = col.mesh)
-    }
+    else makeTriangles(computeContour3d(f, level, x, y, z, mask),
+                       color = color, alpha = alpha, fill = fill,
+                       col.mesh = col.mesh)
 }
 
 canonicalizeTriangles <- function(tris) {
-    if (is.null(tris$triangles)) {
-        if (length(tris) > 0 && is.null(tris[[1]]$triangles))
+    if (is.null(tris$v1)) {
+        if (length(tris) > 0 && is.null(tris[[1]]$v1))
             stop("bad triangles data")
         lapply(tris, canonicalizeTriangles)
     }
     else {
         if (is.function(tris$color)) {
-            i.tri <- 1 : (nrow(tris$triangles) / 3)
-            v1 <- tris$triangles[3 * i.tri - 2,]
-            v2 <- tris$triangles[3 * i.tri - 1,]
-            v3 <- tris$triangles[3 * i.tri - 0,]
-            v <- (v1 + v2 + v3) / 3
-            tris$color <- rep(tris$color(v[,1], v[,2], v[,3]), each = 3)
+            v <- (tris$v1 + tris$v2 + tris$v3) / 3
+            tris$color <- tris$color(v[,1], v[,2], v[,3])
         }
-        tris$color <- rep(tris$color, length = nrow(tris$triangles))
-        tris$alpha <- rep(tris$alpha, length = nrow(tris$triangles))
-        tris$fill <- rep(tris$fill, length = nrow(tris$triangles))
-        tris$col.mesh <- rep(tris$col.mesh, length = nrow(tris$triangles))
+        tris$color <- rep(tris$color, length = nrow(tris$v1))
+        tris$alpha <- rep(tris$alpha, length = nrow(tris$v1))
+        tris$fill <- rep(tris$fill, length = nrow(tris$v1))
+        tris$col.mesh <- rep(tris$col.mesh, length = nrow(tris$v1))
         tris
     }
 }
 
 mergeTriangles <- function(tris) {
-    if (is.null(tris$triangles)) {
-        if (length(tris) > 0 && is.null(tris[[1]]$triangles))
+    if (is.null(tris$v1)) {
+        if (length(tris) > 0 && is.null(tris[[1]]$v1))
             stop("bad triangles data")
-        triangles <- do.call(rbind, lapply(tris, function(x) x$triangles))
+        v1 <- do.call(rbind, lapply(tris, function(x) x$v1))
+        v2 <- do.call(rbind, lapply(tris, function(x) x$v2))
+        v3 <- do.call(rbind, lapply(tris, function(x) x$v3))
         color <- do.call(c, lapply(tris, function(x) x$color))
         alpha <- do.call(c, lapply(tris, function(x) x$alpha))
         fill <- do.call(c, lapply(tris, function(x) x$fill))
         col.mesh <- do.call(c, lapply(tris, function(x) x$col.mesh))
-        list(triangles = triangles, color = color, alpha = alpha,
+        list(v1 = v1, v2 = v2, v3 = v3, color = color, alpha = alpha,
              fill = fill, col.mesh = col.mesh)
     }
     else tris
@@ -680,7 +677,11 @@ contour3d <- function(f, level,
         triangles
     else if (engine == "rgl") {
         triangles <- mergeTriangles(canonicalizeTriangles(triangles))
-        data <- triangles$triangles
+        triangles$color <- rep(triangles$color, each = 3)
+        triangles$alpha <- rep(triangles$alpha, each = 3)
+        triangles$fill <- rep(triangles$fill, each = 3)
+        triangles$col.mesh <- rep(triangles$col.mesh, each = 3)
+        data <- zipTriangles(triangles)
         col <- triangles$color
         alpha <- triangles$alpha
         oldstyle = FALSE #*** eventually make this a settable option.
