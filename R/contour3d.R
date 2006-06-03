@@ -637,10 +637,6 @@ canonicalizeTriangles <- function(tris) {
         lapply(tris, canonicalizeTriangles)
     }
     else {
-        if (is.function(tris$color)) {
-            v <- (tris$v1 + tris$v2 + tris$v3) / 3
-            tris$color <- tris$color(v[,1], v[,2], v[,3])
-        }
         tris$color <- rep(tris$color, length = nrow(tris$v1))
         tris$alpha <- rep(tris$alpha, length = nrow(tris$v1))
         tris$fill <- rep(tris$fill, length = nrow(tris$v1))
@@ -675,40 +671,43 @@ contour3d <- function(f, level,
                                   fill, col.mesh)
     if (! draw || engine == "none")
         triangles
-    else if (engine == "rgl") {
-        triangles <- mergeTriangles(canonicalizeTriangles(triangles))
-        triangles$color <- rep(triangles$color, each = 3)
-        triangles$alpha <- rep(triangles$alpha, each = 3)
-        triangles$fill <- rep(triangles$fill, each = 3)
-        triangles$col.mesh <- rep(triangles$col.mesh, each = 3)
-        data <- zipTriangles(triangles)
-        col <- triangles$color
-        alpha <- triangles$alpha
-        oldstyle = FALSE #*** eventually make this a settable option.
-        if (all(triangles$fill)) {
-            front <- "filled"
-            back <- "filled"
+    else {
+        triangles <- colorScene(triangles)
+        if (engine == "rgl") {
+            triangles <- mergeTriangles(canonicalizeTriangles(triangles))
+            triangles$color <- rep(triangles$color, each = 3)
+            triangles$alpha <- rep(triangles$alpha, each = 3)
+            triangles$fill <- rep(triangles$fill, each = 3)
+            triangles$col.mesh <- rep(triangles$col.mesh, each = 3)
+            data <- zipTriangles(triangles)
+            col <- triangles$color
+            alpha <- triangles$alpha
+            if (all(triangles$fill)) {
+                front <- "filled"
+                back <- "filled"
+            }
+            else if (any(triangles$fill))
+                ##**** handle these by splitting; OK if no alpha < 1
+                stop(paste("for now rgl engine cannot handle mixed fill/wire",
+                           "frame contours"))
+            else {
+                front <- "lines"
+                back <- "lines"
+            }
+            oldstyle = FALSE #*** eventually make this a settable option.
+            if (oldstyle) {
+                data <- data[,c(1, 3, 2)]
+                data[,3] <- -data[,3]
+            }
+            if (! rgl.cur())
+                open3d()
+            if (!add)
+                rgl.clear()
+            if (nrow(data) > 0)
+                rgl.triangles(data[,1], data[,2], data[,3],
+                              col = col, alpha = alpha,
+                              front = front, back = back, ...)
         }
-        else if (any(triangles$fill))
-            ##**** handle these by splitting; OK if no alpha < 1
-            stop(paste("for now rgl engine cannot handle mixed fill/wire",
-                       "frame contours"))
-        else {
-            front <- "lines"
-            back <- "lines"
-        }
-        if (oldstyle) {
-            data <- data[,c(1, 3, 2)]
-            data[,3] <- -data[,3]
-        }
-        if (! rgl.cur())
-            open3d()
-        if (!add)
-            rgl.clear()
-        if (nrow(data) > 0)
-            rgl.triangles(data[,1], data[,2], data[,3],
-                          col = col, alpha = alpha,
-                          front = front, back = back, ...)
+        else stop(paste("unknown rendering engine:", engine))
     }
-    else stop(paste("unknown rendering engine:", engine))
 }
