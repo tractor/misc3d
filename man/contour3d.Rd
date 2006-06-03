@@ -6,7 +6,7 @@
 }
 \usage{
    contour3d(f, level, x, y, z, mask = NULL, color = "white", alpha = 1, 
-             add = FALSE, draw = TRUE, engine = "rgl", ...)
+             fill = TRUE, add = FALSE, draw = TRUE, engine = "rgl", ...)
 }
 \arguments{
   \item{f}{a function of 3 arguments or a three dimensional array.}
@@ -26,6 +26,9 @@
     making up the surface.  They should return a vector of colors to use
     for the triangles.}
   \item{alpha}{alpha channel level, a number between 0 and 1. Recycled to the
+    length of \code{'levels'}.}
+  \item{fill}{logical; if \code{TRUE}, drawing should use filled
+    surfaces; otherwise a wire frame should be drawn. Recycled to the
     length of \code{'levels'}.}
   \item{add}{logical; if \code{TRUE}, add to current \code{rgl} graph.}
   \item{draw}{logical; if \code{TRUE}, draw the results; otherwise,
