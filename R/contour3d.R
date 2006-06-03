@@ -1,5 +1,4 @@
 ##**** need some more examples/test cases
-##**** have rgl verison return matrix?
 ##**** add standard, grid versions
 
 ##**** Redo with 21 cases, breaking face ambiguity by always cutting
@@ -611,20 +610,22 @@ computeContour3d <- function (f, level,
 
 contourTriangles <- function(f, level,
                              x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
-                             mask = NULL, color = "white", alpha = 1) {
+                             mask = NULL, color = "white", alpha = 1,
+                             fill = TRUE) {
     if (length(level) > 1) {
         val <- vector("list", length(level))
         for (i in seq(along = level)) {
             m <- if (is.list(mask)) mask[[i]] else mask
             col <- if (length(color) > 1) color[[i]] else color
             a <- if (length(alpha) > 1) alpha[[i]] else alpha
-            val[[i]] <- contourTriangles(f, level[i], x, y, z, m, col, a)
+            fl <- if (length(fill) > 1) fill[[i]] else fill
+            val[[i]] <- contourTriangles(f, level[i], x, y, z, m, col, a, fl)
         }
         val
     }
     else {
         list(triangles = computeContour3d(f, level, x, y, z, mask),
-             color = color, alpha = alpha)
+             color = color, alpha = alpha, fill = fill)
     }
 }
 
@@ -645,6 +646,7 @@ canonicalizeTriangles <- function(tris) {
         }
         tris$color <- rep(tris$color, length = nrow(tris$triangles))
         tris$alpha <- rep(tris$alpha, length = nrow(tris$triangles))
+        tris$fill <- rep(tris$fill, length = nrow(tris$triangles))
         tris
     }
 }
@@ -656,22 +658,35 @@ mergeTriangles <- function(tris) {
         triangles <- do.call(rbind, lapply(tris, function(x) x$triangles))
         color <- do.call(c, lapply(tris, function(x) x$color))
         alpha <- do.call(c, lapply(tris, function(x) x$alpha))
-        list(triangles = triangles, color = color, alpha = alpha)
+        fill <- do.call(c, lapply(tris, function(x) x$fill))
+        list(triangles = triangles, color = color, alpha = alpha, fill = fill)
     }
     else tris
 }
     
 contour3d <- function(f, level,
                       x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
-                      mask = NULL, color = "white", alpha = 1,
+                      mask = NULL, color = "white", alpha = 1, fill = TRUE,
                       add = FALSE, draw = TRUE, engine = "rgl", ...){
-    triangles <- contourTriangles(f, level, x, y, z, mask, color, alpha)
+    triangles <- contourTriangles(f, level, x, y, z, mask, color, alpha, fill)
     if (draw && engine == "rgl") {
         triangles <- mergeTriangles(canonicalizeTriangles(triangles))
         data <- triangles$triangles
         col <- triangles$color
         alpha <- triangles$alpha
         oldstyle = FALSE #*** eventually make this a settable option.
+        if (all(triangles$fill)) {
+            front <- "filled"
+            back <- "filled"
+        }
+        else if (any(triangles$fill))
+            ##**** handle these by splitting; OK if no alpha < 1
+            stop(paste("for now rgl engine cannot handle mixed fill/wire",
+                       "frame contours"))
+        else {
+            front <- "lines"
+            back <- "lines"
+        }
         if (oldstyle) {
             data <- data[,c(1, 3, 2)]
             data[,3] <- -data[,3]
@@ -682,7 +697,8 @@ contour3d <- function(f, level,
             rgl.clear()
         if (nrow(data) > 0)
             rgl.triangles(data[,1], data[,2], data[,3],
-                          col = col, alpha = alpha, ...)
+                          col = col, alpha = alpha,
+                          front = front, back = back, ...)
     }
     else triangles
 }
