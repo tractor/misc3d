@@ -28,7 +28,7 @@
     use.  Ignored in \code{u} and \code{v} are supplied.}
   \item{color}{color to use for the surface. Can also be a function of
     three arguments.  This is called with three arguments, the
-    coordiantes of the midpoints of the triangles making up the surface.
+    coordinates of the midpoints of the triangles making up the surface.
     The function should return a vector of colors to use for the
     triangles.}
   \item{color2}{opposite face color; only used for "standard" and "grid"
@@ -47,7 +47,8 @@
   \item{engine}{character; currently "rgl", "standard", "grid" or "none";
     for "none" the computed triangles are returned.}
   \item{...}{additional rendering arguments, e.g. material and texture
-    properties for the "rgl" engine.}
+    properties for the "rgl" engine.   See documentation for
+    \code{\link[misc3d]{drawScene}} and \code{\link[misc3d]{drawScene.rgl}}}
 }
 \details{
   Analogous to Mathematica's \code{Param3D}.  Evaluates the
@@ -55,6 +56,16 @@
   coordinates of the surface at an equally spaced grid of values for the
   parameters \code{u} and \code{v}.
 }
+\note{
+  The "rgl" engine now uses the standard rgl coordinates instead of
+  negating \code{y} and swapping \code{y} and \code{z}. If you need to
+  reproduce the previous behavior you can use
+  \code{options(old.misc3d.orientation=TRUE)}.
+
+  Transparency only works properly in the "rgl" engine.  For standard or
+  grid graphics on pdf or quartz devices using alpha levels less than 1
+  does work but the triangle borders show as a less transparent mesh.
+  }
 \references{ 
    Daniel Adler, Oleg Nenadic and Walter Zucchini (2003)
    RGL: A R-library for 3D visualization with OpenGL
