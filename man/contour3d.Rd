@@ -19,13 +19,13 @@
     is an array.}
   \item{mask}{a function of 3 arguments returning a logical array, a
     three dimensional logical array, or \code{NULL}.  If not
-    \code{NULL}, only cels for which \code{mask} is true at all eight
-    vertices are used in forming the contour.  Can also be a lsit of
+    \code{NULL}, only cells for which \code{mask} is true at all eight
+    vertices are used in forming the contour.  Can also be a list of
     functions the same length as \code{level}.}
   \item{color}{color to use for the contour surface. Recycled to the
     length of \code{'levels'}. Can also be a function, or list of
     functions, of three arguments.  These are called for each level with
-    three arguments, the coordiantes of the midpoints of the triangles
+    three arguments, the coordinates of the midpoints of the triangles
     making up the surface.  They should return a vector of colors to use
     for the triangles.}
   \item{color2}{opposite face color; only used for "standard" and "grid"
@@ -49,13 +49,24 @@
   \item{engine}{character; currently "rgl", "standard", "grid" or "none";
     for "none" the computed triangles are returned.}
   \item{...}{additional rendering arguments, e.g. material and texture
-    properties for the "rgl" engine.}
+    properties for the "rgl" engine.  See documentation for
+    \code{\link[misc3d]{drawScene}} and \code{\link[misc3d]{drawScene.rgl}}}
 }
 \details{
   Uses the marching-cubes algorithm, with adjustments for dealing with
   face and internal ambiguities, to draw isosurfaces.
   See references for the details.
 }
+\note{
+  The "rgl" engine now uses the standard rgl coordinates instead of
+  negating \code{y} and swapping \code{y} and \code{z}. If you need to
+  reproduce the previous behavior you can use
+  \code{options(old.misc3d.orientation=TRUE)}.
+
+  Transparency only works properly in the "rgl" engine.  For standard or
+  grid graphics on pdf or quartz devices using alpha levels less than 1
+  does work but the triangle borders show as a less transparent mesh.
+  }
 \references{
  Chernyaev E. (1995)  
  Marching Cubes 33: Construction of Topologically Correct Isosurfaces  
