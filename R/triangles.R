@@ -39,25 +39,25 @@ updateTriangles <- function(triangles, color, color2, fill, material,
     triangles
 }
 
-t2ve <- function(triangles) {
+#**** This assumes comparable scaling of dimensions
+#**** 5 is the largest exponent for S that will work; smaller is OK
+t2ve <- function (triangles) 
+{
     vb <- rbind(triangles$v1, triangles$v2, triangles$v3)
-    sc <- function(v, d) round(as.vector(v %*% d),8)
-    repeat {
-        ##**** figure out how to do this without random normals
-        d <- rnorm(3)
-        d1 <- rnorm(3)
-        scores <- sc(vb, d)
-        scores1 <- sc(vb, d1)
-        if (identical(duplicated(scores), duplicated(scores1))) {
-            vb <- vb[! duplicated(scores),]
-            scores <- sc(vb, d)
-            break
-        }
-        ##**** signal an error if run to many times?
-    }
-    ib <- rbind(match(sc(triangles$v1, d), scores),
-                match(sc(triangles$v2, d), scores),
-                match(sc(triangles$v3, d), scores))
+    vbmin <- min(vb)
+    vbmax <- max(vb)
+    S <- 10^5
+    score <- function(v, d) floor(as.vector(v %*% d))
+    scale <- function(v) (1 - 1 / S) * (v - vbmin) / (vbmax - vbmin)
+    vbs <- scale(vb)
+    d <- c(1, S, S^2)
+    scores <- score(vbs, d)
+    vb <- vb[! duplicated(scores),]
+    vbs <- scale(vb)
+    scores <- score(vbs, d)
+    ib <- rbind(match(score(scale(triangles$v1), d), scores),
+                match(score(scale(triangles$v2), d), scores),
+                match(score(scale(triangles$v3), d), scores))
     list(vb = t(vb), ib = ib)
 }
 
