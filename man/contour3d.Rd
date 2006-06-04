@@ -21,7 +21,7 @@
     vertices are used in forming the contour.  Can also be a lsit of
     functions the same length as \code{level}.}
   \item{color}{color to use for the contour surface. Recycled to the
-    length of \code{'levels'}. Can also be a function, of list of
+    length of \code{'levels'}. Can also be a function, or list of
     functions, of three arguments.  These are called for each level with
     three arguments, the coordiantes of the midpoints of the triangles
     making up the surface.  They should return a vector of colors to use
