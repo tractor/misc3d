@@ -1,7 +1,7 @@
 parametric3d <- function(fx, fy, fz, u, v, umin, umax, vmin, vmax, n=100,
-                         color = "white", color2 = NA, smooth = 0,
-                         material = "default", alpha = 1, fill = TRUE,
-                         col.mesh = if (fill) NA else color,
+                         color = "white", color2 = NA, alpha = 1,
+                         fill = TRUE, col.mesh = if (fill) NA else color,
+                         smooth = 0, material = "default", 
                          add = FALSE, draw = TRUE, engine = "rgl", ...){
     ##**** handle other args
     ##**** quads would be better

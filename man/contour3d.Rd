@@ -2,11 +2,13 @@
 \alias{contour3d}
 \title{Draw an Isosurface, a Three Dimension Contour Plot}
 \description{
-  Uses rgl to render an isosurface computed by the marching cubes algorithm.
+  Computes and renders 3D contours or isosurfaces computed by the
+  marching cubes algorithm.
 }
 \usage{
-   contour3d(f, level, x, y, z, mask = NULL, color = "white", alpha = 1, 
-             fill = TRUE, col.mesh = if (fill) NA else color,
+   contour3d(f, level, x, y, z, mask = NULL, color = "white", color2 = NA,
+             alpha = 1, fill = TRUE, col.mesh = if (fill) NA else color,
+             material = "default", smooth = 0,
              add = FALSE, draw = TRUE, engine = "rgl", ...)
 }
 \arguments{
@@ -26,6 +28,8 @@
     three arguments, the coordiantes of the midpoints of the triangles
     making up the surface.  They should return a vector of colors to use
     for the triangles.}
+  \item{color2}{opposite face color; only used for "standard" and "grid"
+    engines. Recycled to the length of \code{'levels'}.}
   \item{alpha}{alpha channel level, a number between 0 and 1. Recycled to the
     length of \code{'levels'}.}
   \item{fill}{logical; if \code{TRUE}, drawing should use filled
@@ -33,13 +37,19 @@
     length of \code{'levels'}.}
   \item{col.mesh}{color to use for the wire frame. Recycled to the
     length of \code{'levels'}.}
+  \item{smooth}{integer specifying Phong shading level; currently only
+    used by "standard" and "grid" engines. Recycled to the length of
+    \code{'levels'}.}
+  \item{material}{material specification; currently only used by
+    "standard" and "grid" engines. Recycled to the length of
+    \code{'levels'}.}
   \item{add}{logical; if \code{TRUE}, add to current \code{rgl} graph.}
   \item{draw}{logical; if \code{TRUE}, draw the results; otherwise,
     return contour triangles.}
-  \item{engine}{character; currently "rgl" or "none"; for "none" the
-    computed triangles are returned.}
-  \item{...}{material and texture properties. See \code{rgl.material}
-    for details.}
+  \item{engine}{character; currently "rgl", "standard", "grid" or "none";
+    for "none" the computed triangles are returned.}
+  \item{...}{additional rendering arguments, e.g. material and texture
+    properties for the "rgl" engine.}
 }
 \details{
   Uses the marching-cubes algorithm, with adjustments for dealing with
@@ -71,9 +81,13 @@
   f <- function(x, y, z)x^2+y^2+z^2
   x <- seq(-2,2,len=20)
   contour3d(f,4,x,x,x)
+  contour3d(f,4,x,x,x, engine = "standard")
 
   # ball with one corner removed.
   contour3d(f,4,x,x,x, mask = function(x,y,z) x > 0 | y > 0 | z > 0)
+  contour3d(f,4,x,x,x, mask = function(x,y,z) x > 0 | y > 0 | z > 0,
+            engine="standard", screen = list(x = 290, y = -20),
+            color = "red", color2 = "white")
 
   # ball with computed colors
   w <- function(x,y,z) {
@@ -101,25 +115,35 @@
       rgl.bg(col="white")
   }
   g(40,5)
+  gs <- function(n = 40, k = 5, cmap = heat.colors, ...) {
+      th <- seq(0.05, 0.2, len = k)
+      col <- rev(cmap(length(th)))
+      x <- seq(-2, 2, len=n)
+      m <- function(x,y,z) x > .25 | y < -.3
+      contour3d(f,th,x,x,x,color=col, mask = m, engine = "standard",
+                scale = FALSE, ...)
+      rgl.bg(col="white")
+  }
+  gs(40, 5, screen=list(z = 130, x = -80), color2 = "lightgray", cmap=rainbow)
 
 \dontrun{
   #Example 3: Nested contours for FMRI data.
   library(AnalyzeFMRI)
-  a<-f.read.analyze.volume(system.file("example.img", package="AnalyzeFMRI"))
-  contour3d(aperm(a[,,,1],c(1,3,2)),1:64,1.5*(1:21),1:64,lev=3000,alpha=0.5)
-  contour3d(aperm(a[,,,1],c(1,3,2)),1:64,1.5*(1:21),1:64,lev=8000,
-            col="red",add=TRUE, alpha=0.5)
-  contour3d(aperm(a[,,,1],c(1,3,2)),1:64,1.5*(1:21),1:64,lev=10000,
-            col="green",add=TRUE)
+  a <- f.read.analyze.volume(system.file("example.img", package="AnalyzeFMRI"))
+  a <- a[,,,1]
+  contour3d(a, 1:64, 1:64, 1.5*(1:21), lev=c(3000, 8000, 10000),
+            alpha = c(0.2, 0.5, 1), color = c("white", "red", "green"))
 
   # alternative masking out a corner
-  m <- array(TRUE, dim(a)[-4])
+  m <- array(TRUE, dim(a))
   m[1:30,1:30,1:10] <- FALSE
-  contour3d(a[,,,1],1:64,1:64,1.5*(1:21),lev=3000, mask = m)
-  contour3d(a[,,,1],1:64,1:64,1.5*(1:21),lev=8000, col="red",
-            add=TRUE, mask = m)
-  contour3d(a[,,,1],1:64,1:64,1.5*(1:21),lev=10000,col="green",
-            add=TRUE, mask = m)
+  contour3d(a, 1:64, 1:64, 1.5*(1:21), lev=c(3000, 8000, 10000),
+            mask = m, color = c("white", "red", "green"))
+  contour3d(a, 1:64, 1:64, 1.5*(1:21), lev=c(3000, 8000, 10000),
+            color = c("white", "red", "green"),
+            color2 = c("gray", "red", "green"),
+            mask = m, engine="standard",
+            scale = FALSE, screen=list(z = 60, x = -120))
   }
 }
 \keyword{hplot}

@@ -6,9 +6,9 @@
 }
 \usage{
   parametric3d(fx, fy, fz, u, v, umin, umax, vmin, vmax, n = 100,
-               color = "white", color2 = NA, smooth = 0,
-               material = "default", alpha = 1, fill = TRUE,
-               col.mesh = if (fill) NA else color,
+               color = "white", color2 = NA, alpha = 1,
+               fill = TRUE, col.mesh = if (fill) NA else color,
+               smooth = 0, material = "default", 
                add = FALSE, draw = TRUE, engine = "rgl", ...)
 }
 \arguments{
@@ -33,14 +33,14 @@
     triangles.}
   \item{color2}{opposite face color; only used for "standard" and "grid"
     engines.}
-  \item{smooth}{integer specifying Phong shading level; currently only
-    used by "standard" and "grid" engines.}
-  \item{material}{material specification; currently only used by
-    "standard" and "grid" engines.}
   \item{alpha}{alpha channel level, a number between 0 and 1..}
   \item{fill}{logical; if \code{TRUE}, drawing should use filled
     surfaces; otherwise a wire frame should be drawn.}
   \item{col.mesh}{color to use for the wire frame.}
+  \item{smooth}{integer specifying Phong shading level; currently only
+    used by "standard" and "grid" engines.}
+  \item{material}{material specification; currently only used by
+    "standard" and "grid" engines.}
   \item{add}{logical; if \code{TRUE}, add to current graph.}
   \item{draw}{logical; if \code{TRUE}, draw the results; otherwise,
     return contour triangles.}

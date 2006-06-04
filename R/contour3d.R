@@ -610,39 +610,48 @@ computeContour3d <- function (f, level,
 
 contourTriangles <- function(f, level,
                              x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
-                             mask = NULL, color = "white", alpha = 1,
-                             fill = TRUE, col.mesh = if (fill) NA else color) {
+                             mask = NULL, color = "white", color2 = NA,
+                             alpha = 1, fill = TRUE,
+                             col.mesh = if (fill) NA else color,
+                             material = "default", smooth = 0) {
     if (length(level) > 1) {
         val <- vector("list", length(level))
         for (i in seq(along = level)) {
             m <- if (is.list(mask)) mask[[i]] else mask
             col <- if (length(color) > 1) color[[i]] else color
+            col2 <- if (length(color2) > 1) color2[[i]] else color2
             a <- if (length(alpha) > 1) alpha[[i]] else alpha
             fl <- if (length(fill) > 1) fill[[i]] else fill
             cm <- if (length(col.mesh) > 1) col.mesh[[i]] else col.mesh
-            val[[i]] <- contourTriangles(f, level[i], x, y, z, m, col, a,
-                                         fl, cm)
+            mat <- if (length(material) > 1) material[[1]] else material
+            sm <- if (length(smooth) > 1) smooth[[1]] else smooth
+            val[[i]] <- contourTriangles(f, level[i], x, y, z, m, col, col2,
+                                         a, fl, cm, mat, sm)
         }
         val
     }
     else makeTriangles(computeContour3d(f, level, x, y, z, mask),
-                       color = color, alpha = alpha, fill = fill,
-                       col.mesh = col.mesh)
+                       color = color, color2 = color2, alpha = alpha,
+                       fill = fill, col.mesh = col.mesh,
+                       material = material, smooth = smooth)
 }
 
 contour3d <- function(f, level,
                       x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
-                      mask = NULL, color = "white", alpha = 1, fill = TRUE,
-                      col.mesh = if (fill) NA else color,
+                      mask = NULL, color = "white", color2 = NA, alpha = 1,
+                      fill = TRUE, col.mesh = if (fill) NA else color,
+                      material = "default", smooth = 0,
                       add = FALSE, draw = TRUE, engine = "rgl", ...){
-    scene <- contourTriangles(f, level, x, y, z, mask, color, alpha,
-                              fill, col.mesh)
+    scene <- contourTriangles(f, level, x, y, z, mask, color, color2, alpha,
+                              fill, col.mesh, material, smooth)
     if (! draw || engine == "none")
         scene
     else {
         scene <- colorScene(scene)
         if (engine == "rgl")
             drawScene.rgl(scene, add = add, ...)
+        else if (engine %in% c("standard", "grid"))
+            drawScene(scene, add = add, engine = engine, ...)
         else stop(paste("unknown rendering engine:", engine))
     }
 }
