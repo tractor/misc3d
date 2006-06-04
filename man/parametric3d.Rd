@@ -46,8 +46,8 @@
     return contour triangles.}
   \item{engine}{character; currently "rgl", "standard", "grid" or "none";
     for "none" the computed triangles are returned.}
-  \item{...}{material and texture properties. See \code{rgl.material}
-    for details.}
+  \item{...}{additional rendering arguments, e.g. material and texture
+    properties for the "rgl" engine.}
 }
 \details{
   Analogous to Mathematica's \code{Param3D}.  Evaluates the
@@ -60,7 +60,7 @@
    RGL: A R-library for 3D visualization with OpenGL
 }
 \seealso{
-  \code{\link[rgl]{rgl.quads}},\code{\link[rgl]{rgl.surface}},
+  \code{\link[rgl]{rgl.surface}},
   \code{\link[rgl]{rgl.material}},\code{\link[scatterplot3d]{scatterplot3d}}.
 }
 \examples{
