@@ -6,7 +6,8 @@
 }
 \usage{
   parametric3d(fx, fy, fz, u, v, umin, umax, vmin, vmax, n = 100,
-               color = "white", alpha = 1, fill = TRUE,
+               color = "white", color2 = NA, smooth = 0,
+               material = "default", alpha = 1, fill = TRUE,
                col.mesh = if (fill) NA else color,
                add = FALSE, draw = TRUE, engine = "rgl", ...)
 }
@@ -28,16 +29,23 @@
   \item{color}{color to use for the surface. Can also be a function of
     three arguments.  This is called with three arguments, the
     coordiantes of the midpoints of the triangles making up the surface.
-    The function should return a vector of colors to use for the triangles.}
+    The function should return a vector of colors to use for the
+    triangles.}
+  \item{color2}{opposite face color; only used for "standard" and "grid"
+    engines.}
+  \item{smooth}{integer specifying Phong shading level; currently only
+    used by "standard" and "grid" engines.}
+  \item{material}{material specification; currently only used by
+    "standard" and "grid" engines.}
   \item{alpha}{alpha channel level, a number between 0 and 1..}
   \item{fill}{logical; if \code{TRUE}, drawing should use filled
     surfaces; otherwise a wire frame should be drawn.}
   \item{col.mesh}{color to use for the wire frame.}
-  \item{add}{logical; if \code{TRUE}, add to current \code{rgl} graph.}
+  \item{add}{logical; if \code{TRUE}, add to current graph.}
   \item{draw}{logical; if \code{TRUE}, draw the results; otherwise,
     return contour triangles.}
-  \item{engine}{character; currently "rgl" or "none"; for "none" the
-    computed triangles are returned.}
+  \item{engine}{character; currently "rgl", "standard", "grid" or "none";
+    for "none" the computed triangles are returned.}
   \item{...}{material and texture properties. See \code{rgl.material}
     for details.}
 }
@@ -71,8 +79,15 @@
                       2 * 0.75 * u * v)/sqrt(1-.75^2))^(1/3),
                fz = function(u, v) exp(-0.5 * (u^2 + v^2 - 2 * 0.75 * u * 
                       v)/sqrt(1-.75^2))^(1/3),
+               u = qcauchy((1:100)/101), v = qcauchy((1:100)/101))	
+  parametric3d(fx = function(u, v) u * exp(-0.5 * (u^2 + v^2 -
+                      2 * 0.75 * u * v)/sqrt(1-.75^2))^(1/3),
+               fy = function(u, v) v * exp(-0.5 * (u^2 + v^2 -
+                      2 * 0.75 * u * v)/sqrt(1-.75^2))^(1/3),
+               fz = function(u, v) exp(-0.5 * (u^2 + v^2 - 2 * 0.75 * u * 
+                      v)/sqrt(1-.75^2))^(1/3),
                u = qcauchy((1:100)/101), v = qcauchy((1:100)/101),
-               n = 100)	
+               engine = "standard", scale = FALSE, screen = list(x=-90, y=20))
 
   #Example 2: Ratio-of-Uniform sampling region of Bivariate t      
   parametric3d(fx = function(u,v) u*(dt(u,2) * dt(v,2))^(1/3), 
@@ -85,6 +100,11 @@
                fz = function(u,v) (dt(u,2) * dt(v,2))^(1/3),
                u = qcauchy((1:100)/101), v = qcauchy((1:100)/101),
                color = "green")
+  parametric3d(fx = function(u,v) u*(dt(u,2) * dt(v,2))^(1/3),
+               fy = function(u,v) v*(dt(u,2) * dt(v,2))^(1/3),
+               fz = function(u,v) (dt(u,2) * dt(v,2))^(1/3),
+               u = qcauchy((1:100)/101), v = qcauchy((1:100)/101),
+               color = "green", engine = "standard", scale = FALSE)
 
 
   #Example 3: Surface of revolution
@@ -92,6 +112,12 @@
                fy = function(u,v) sin(v)*(u^3+2*u^2-2*u+2)/5,
                fz = function(u,v) cos(v)*(u^3+2*u^2-2*u+2)/5,
                umin = -2.3, umax = 1.3, vmin = 0, vmax = 2*pi)
+  parametric3d(fx = function(u,v) u,
+               fy = function(u,v) sin(v)*(u^3+2*u^2-2*u+2)/5,
+               fz = function(u,v) cos(v)*(u^3+2*u^2-2*u+2)/5,
+               umin = -2.3, umax = 1.3, vmin = 0, vmax = 2*pi,
+               engine = "standard", scale = FALSE,
+               color = "red", color2 = "blue", material = "shiny")
 
 }
 }
