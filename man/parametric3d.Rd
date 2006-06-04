@@ -50,6 +50,13 @@
     properties for the "rgl" engine.   See documentation for
     \code{\link[misc3d]{drawScene}} and \code{\link[misc3d]{drawScene.rgl}}}
 }
+\value{
+  For the "rgl" engine the returned value is \code{NULL}. For the
+  "standard" and "grid" engines the returned value is the viewing
+  transformation as returned by \code{persp}.  For the engine "none", or
+  when \code{draw} is not true, the returned value is a structure
+  representing the triangles making up the surface.
+  }
 \details{
   Analogous to Mathematica's \code{Param3D}.  Evaluates the
   functions \code{fx}, \code{fy}, and \code{fz} specifying the
