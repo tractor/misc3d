@@ -414,7 +414,11 @@ surfaceTriangles <- function(x, y, f,
     v1 <- cbind(x[i1[,1]], y[i1[,2]], ff(i1[,1], i1[,2]))
     v2 <- cbind(x[i2[,1]], y[i2[,2]], ff(i2[,1], i2[,2]))
     v3 <- cbind(x[i3[,1]], y[i3[,2]], ff(i3[,1], i3[,2]))
-    makeTriangles(v1 = v1, v2 = v2, v3 = v3,
+    na1 <- is.na(v1[,1]) | is.na(v1[,2]) | is.na(v1[,3])
+    na2 <- is.na(v2[,1]) | is.na(v2[,2]) | is.na(v2[,3])
+    na3 <- is.na(v3[,1]) | is.na(v3[,2]) | is.na(v3[,3])
+    nna <- ! (na1 | na2 | na3)
+    makeTriangles(v1[nna,], v2[nna,], v3[nna,],
                   color = color, color2 = color2, fill = fill,
                   material = material, col.mesh = col.mesh, alpha = alpha)
 }
