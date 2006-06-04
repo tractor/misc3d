@@ -70,38 +70,24 @@ local({
               light = c(1, 1.5, 0), screen = list(x=40, y=-40, z=-135),
               scale = FALSE)
 
-    n <- 50
-    tx <- matrix(seq(-pi, pi, len = 2 * n), 2 * n, n)
-    ty <- matrix(seq(-pi, pi, len = n)/2, 2 * n, n, byrow = T)
-    xx <- cos(tx) * cos(ty)
-    yy <- sin(tx) * cos(ty)
-    zz <- sin(ty)
-    zzz <- zz
+    ## based on an example from lattice wireframe()
+    vv <- parametric3d(fx = function(u, v) cos(u)*cos(v),
+                       fy = function(u,v) sin(u) * cos(v),
+                       fz = function(u,v) sin(v),
+                       umin = -pi, umax = pi,
+                       vmin = -pi/2, vmax = pi/2,
+                       n = 50, draw = FALSE)
 
-    zzz[, 1:12 * 4] <- NA
-
-    ## wireframe(zzz ~ xx * yy, shade = TRUE, light.source = c(3, 3, 3))
-    ##**** redo this with parametric3d
-    vv <- local({
-        n1 <- nrow(xx)
-        n2 <- ncol(xx)
-        tx <- surfaceTriangles(1:n1,1:n2,xx)
-        ty <- surfaceTriangles(1:n1,1:n2,yy)
-        tz <- surfaceTriangles(1:n1,1:n2,zz)
-        makeTriangles(v1 = cbind(tx$v1[,3],ty$v1[,3],tz$v1[,3]),
-                      v2 = cbind(tx$v2[,3],ty$v2[,3],tz$v2[,3]),
-                      v3 = cbind(tx$v3[,3],ty$v3[,3],tz$v3[,3]))
-    })
-
-    w <- local({
-        v <- (vv$v1 + vv$v2 + vv$v3)/3
-        sin(3*v[,1])+cos(5*v[,2])*sin(7*v[,3])
-    })
-
-    drawScene(updateTriangles(vv,color=terrain.colors(length(w))[rank(w)]) )
-    drawScene(updateTriangles(vv,color=rainbow(length(w))[rank(w)]))
-    drawScene(updateTriangles(vv,color=rainbow(length(w))[rank(w)],
-                              col.mesh="black"))
+    dv <- function(vv, cmap = terrain.colors, ...) {
+        cf <- function(x, y, z) {
+            w <- sin(3 * x) + cos(5 * y) + sin(7 * z)
+            cmap(length(w))[rank(w)]
+        }
+        drawScene(updateTriangles(vv, color = cf, ...))
+    }
+    dv(vv)
+    dv(vv, cmap = rainbow)
+    dv(vv, cmap = rainbow, col.mesh="black")
 
     if (suppressWarnings(require(maps,quietly=TRUE))) {
         m <- map(plot = F)
@@ -114,21 +100,18 @@ local({
         lines(sin(m$x+pi/2)*cos(m$y), sin(m$y))
     }
 
-    vv <- local({
-        n1 <- nrow(xx)
-        n2 <- ncol(xx)
-        tx <- surfaceTriangles(1:n1,1:n2,xx)
-        ty <- surfaceTriangles(1:n1,1:n2,yy)
-        tz <- surfaceTriangles(1:n1,1:n2,zzz)
-        makeTriangles(v1 = cbind(tx$v1[,3],ty$v1[,3],tz$v1[,3]),
-                      v2 = cbind(tx$v2[,3],ty$v2[,3],tz$v2[,3]),
-                      v3 = cbind(tx$v3[,3],ty$v3[,3],tz$v3[,3]))
+    vvv <- local({
+        u <- seq(-pi, pi, len = 50)
+        v <- seq(-pi/2, pi/2, len = 50)
+        v[(1:12) * 4] <- NA
+        parametric3d(fx = function(u, v) cos(u)*cos(v),
+                     fy = function(u,v) sin(u) * cos(v),
+                     fz = function(u,v) sin(v),
+                     u = u, v = v, draw = FALSE)
     })
-
-    drawScene(updateTriangles(vv,color=terrain.colors(length(w))[rank(w)]) )
-    drawScene(updateTriangles(vv,color=rainbow(length(w))[rank(w)]))
-    drawScene(updateTriangles(vv,color=rainbow(length(w))[rank(w)],
-                              col.mesh="black"))
+    dv(vvv)
+    dv(vvv, cmap = rainbow)
+    dv(vvv, cmap = rainbow, col.mesh="black")
 
     drawScene(updateTriangles(vtri, smooth = 1),
               screen = list(x = 40,  y= -40, z = -135), scale = FALSE)
@@ -142,24 +125,15 @@ local({
               screen = list(x = 40, y = -40, z = -135), scale = FALSE,
               persp = TRUE, depth = 0.6)
 
-    ##**** allow mask in parametric3d instead?
-    omitTriangles <- function(triangles, omit) {
-        if (is.function(omit)) {
-            v <- (triangles$v1 + triangles$v2 + triangles$v3) / 3
-            omit <- omit(v[,1], v[,2], v[,3])
-        }
-        n.tri <- nrow(triangles$v1)
-        triangles$v1 <- triangles$v1[! omit,]
-        triangles$v2 <- triangles$v2[! omit,]
-        triangles$v3 <- triangles$v3[! omit,]
-        for (i in seq(along = triangles))
-            if (length(triangles[[i]]) == n.tri)
-                triangles[[i]] <- triangles[[i]][! omit]
-        triangles
-    }
-
-    svtri <- omitTriangles(vtri,function(x,y,z)
-                           floor(0.1 * x) %% 4 != 0 & floor(0.1 * x) %% 4 != 1)
+    svtri <- local({
+        z <- 2 * volcano
+        x <- 10 * (1:nrow(z))
+        y <- 10 * (1:ncol(z))
+        i <- 1 : nrow(z)
+        z[ i %% 4 == 0] <- NA
+        surfaceTriangles(x, y, z, color="green3")
+    })
+    
     drawScene(updateTriangles(svtri, smooth=2,
                               color = function(x,y,z) {
                                   cols <- terrain.colors(diff(range(z)))
