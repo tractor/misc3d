@@ -8,11 +8,11 @@ local({
 
     misc3d:::drawScene.rgl(ttri)
 
-#    drawScene.rgl(list(ttri,translateTriangles(ttri,z=4)))
+    misc3d:::drawScene.rgl(list(ttri,misc3d:::translateTriangles(ttri,z=4)))
 
-#    drawScene.rgl(list(updateTriangles(ttri,color=heat.colors(ncol(edges))),
-#              translateTriangles(ttri,z=4)))
+    misc3d:::drawScene.rgl(list(misc3d:::updateTriangles(ttri,color=heat.colors(ncol(teapot$edges))),
+              misc3d:::translateTriangles(ttri,z=4)))
 
-#    drawScene.rgl(list(updateTriangles(ttri,alpha = 0.5,color="blue"),
-#              scaleTriangles(ttriMetal, 0.6)))
+    misc3d:::drawScene.rgl(list(misc3d:::updateTriangles(ttri,alpha = 0.5,color="blue"),
+              misc3d:::scaleTriangles(ttri, 0.6)))
 })
