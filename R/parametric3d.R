@@ -15,7 +15,8 @@ findNonFinite3d <- function(x, y, z, group) {
 }
 
 parametric3d <- function(fx, fy, fz, u, v, umin, umax, vmin, vmax, n=100,
-                         color = "white", alpha = 1, fill = TRUE,
+                         color = "white", color2 = NA, smooth = 0,
+                         material = "default", alpha = 1, fill = TRUE,
                          col.mesh = if (fill) NA else color,
                          add = FALSE, draw = TRUE, engine = "rgl", ...){
     ##**** handle other args
@@ -33,13 +34,17 @@ parametric3d <- function(fx, fy, fz, u, v, umin, umax, vmin, vmax, n=100,
     na3 <- is.na(v3[,1]) | is.na(v3[,2]) | is.na(v3[,3])
     nna <- ! (na1 | na2 | na3)
     tris <- makeTriangles(v1[nna,], v2[nna,], v3[nna,], color = color,
-                          alpha = alpha, fill = fill, col.mesh = col.mesh)
+                          color2 = color2, smooth = smooth,
+                          material = material, alpha = alpha,
+                          fill = fill, col.mesh = col.mesh)
     if (! draw || engine == "none")
         tris
     else {
         tris <- colorScene(tris)
         if (engine == "rgl")
             drawScene.rgl(tris, add = add, ...)
+        else if (engine %in% c("standard", "grid"))
+            drawScene(tris, add = add, engine = engine, ...)
         else stop(paste("unknown rendering engine:", engine))
     }
 }
