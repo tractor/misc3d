@@ -24,8 +24,8 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
         back <- "lines"
         col <- col.mesh
     }
-    oldstyle = FALSE #*** eventually make this a settable option.
-    if (oldstyle) {
+    oldstyle = getOption("old.misc3d.orientation")
+    if (! is.null(oldstyle) && oldstyle) {
         data <- data[,c(1, 3, 2)]
         data[,3] <- -data[,3]
     }
