@@ -22,6 +22,18 @@ makeTriangles <- function(v1, v2, v3,
 
 is.Triangles3D <- function(x) identical(class(x), "Triangles3D")
 
+updateTriangles <- function(triangles, color, color2, fill, material,
+                          col.mesh, alpha, phong) {
+    if (! missing(color)) triangles$color <- color
+    if (! missing(color2)) triangles$color2 <- color2
+    if (! missing(fill)) triangles$fill <- fill
+    if (! missing(col.mesh)) triangles$col.mesh <- col.mesh
+    if (! missing(material)) triangles$material <- material
+    if (! missing(alpha)) triangles$alpha <- alpha
+    if (! missing(phong)) triangles$phong <- phong
+    triangles
+}
+
 ve2t <- function(ve) {
     list (v1 = t(ve$vb[,ve$ib[1,]]),
           v2 = t(ve$vb[,ve$ib[2,]]),
@@ -119,4 +131,40 @@ expandTriangleGrid <- function(x, y) {
     v2 <- cbind(x[i2[,1]], y[i2[,2]])
     v3 <- cbind(x[i3[,1]], y[i3[,2]])
     list(v1 = v1, v2 = v2, v3 = v3)
+}
+
+## adapted from lattice ltransform3dto3d
+trans3dto3d <- function (x, R.mat) {
+    if (length(x) == 0)
+        return(x)
+    val <- R.mat %*% rbind(t(x), 1)
+    val[1, ] <- val[1, ]/val[4, ]
+    val[2, ] <- val[2, ]/val[4, ]
+    val[3, ] <- val[3, ]/val[4, ]
+    t(val[1:3, , drop = FALSE])
+}
+
+transformTriangles <- function(triangles, R) {
+    tr <- function(v) trans3dto3d(v, R)
+    triangles$v1 <- tr(triangles$v1)
+    triangles$v2 <- tr(triangles$v2)
+    triangles$v3 <- tr(triangles$v3)
+    triangles
+}
+
+transformScene <- function(scene, rot.mat) {
+    if (is.Triangles3D(scene))
+        transformTriangles(scene, rot.mat)
+    else lapply(scene, transformTriangles, rot.mat)
+}
+
+translateTriangles <- function(triangles, x = 0, y = 0, z = 0) {
+    M <- diag(4)
+    M[1:3,4] <- c(x, y, z)
+    transformTriangles(triangles, M)
+}
+
+scaleTriangles <- function(triangles, x = 1, y = x, z = x) {
+    M <- diag(c(x, y, z, 1))
+    transformTriangles(triangles, M)
 }
