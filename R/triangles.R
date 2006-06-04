@@ -90,3 +90,33 @@ canonicalizeAndMergeScene <- function(scene, ...) {
         x
     }
 }
+
+expandTriangleGrid <- function(x, y) {
+    nx <- length(x) - 1
+    ny <- length(y) - 1
+    A <- c(0, 0)
+    B <- c(1, 0)
+    C <- c(1, 1)
+    D <- c(0, 1)
+    g <- expand.grid(x = 1 : nx, y = 1 : ny)
+    even <- (g$x + g$y) %% 2 == 0
+    gx11 <- ifelse(even, g$x + A[1], g$x + A[1])
+    gy11 <- ifelse(even, g$y + A[2], g$y + A[2])
+    gx12 <- ifelse(even, g$x + A[1], g$x + B[1])
+    gy12 <- ifelse(even, g$y + A[2], g$y + B[2])
+    i1 <- rbind(cbind(gx11, gy11), cbind(gx12, gy12))
+    gx21 <- ifelse(even, g$x + B[1], g$x + B[1])
+    gy21 <- ifelse(even, g$y + B[2], g$y + B[2])
+    gx22 <- ifelse(even, g$x + C[1], g$x + C[1])
+    gy22 <- ifelse(even, g$y + C[2], g$y + C[2])
+    i2 <- rbind(cbind(gx21, gy21), cbind(gx22, gy22))
+    gx31 <- ifelse(even, g$x + C[1], g$x + D[1])
+    gy31 <- ifelse(even, g$y + C[2], g$y + D[2])
+    gx32 <- ifelse(even, g$x + D[1], g$x + D[1])
+    gy32 <- ifelse(even, g$y + D[2], g$y + D[2])
+    i3 <- rbind(cbind(gx31, gy31), cbind(gx32, gy32))
+    v1 <- cbind(x[i1[,1]], y[i1[,2]])
+    v2 <- cbind(x[i2[,1]], y[i2[,2]])
+    v3 <- cbind(x[i3[,1]], y[i3[,2]])
+    list(v1 = v1, v2 = v2, v3 = v3)
+}
