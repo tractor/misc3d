@@ -388,8 +388,8 @@ levCells <- function(v, level) {
         vv2 <- ifelse(v2 > level, 1, 0)
         ttt2 <- vv2[i,j] + 2 * vv2[i+1,j] + 4 * vv2[i+1,j+1] + 8 * vv2[i,j+1]
         ttt <- ttt1 + 16 * ttt2
-        iii <- ttt > 0 & ttt < 255
-        val[[k]] <- which(iii) + (nx - 1) * (ny - 1) * (k - 1)
+        iii <- which(ttt > 0 & ttt < 255)
+        val[[k]] <- iii + (nx - 1) * (ny - 1) * (k - 1)
         type[[k]] <- as.integer(ttt[iii])
         v1 <- v2
         vv1 <- vv2
@@ -400,8 +400,6 @@ levCells <- function(v, level) {
     j <- as.integer(((v - 1) %/% (nx - 1)) %% (ny - 1) + 1)
     k <- as.integer((v - 1) %/% ((nx - 1) * (ny - 1)) + 1)
     t <- unlist(type)
-    NAS <- which(is.na(t))
-    if (length(NAS) > 0) t <- t[-NAS]
     list(i = i, j = j, k = k, t = t)
 }
 
