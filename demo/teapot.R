@@ -5,12 +5,6 @@ local({
 
     haveRGL <- suppressWarnings(require(rgl,quietly=TRUE))
 
-    makeTriangles <- misc3d:::makeTriangles
-    translateTriangles <- misc3d:::translateTriangles
-    scaleTriangles <- misc3d:::scaleTriangles
-    updateTriangles <- misc3d:::updateTriangles
-    perspLighting <- misc3d:::perspLighting
-    
     ttri <- makeTriangles(teapot$vertices, teapot$edges,
                           color = "red", color2 = "green")
     edges <- teapot$edges

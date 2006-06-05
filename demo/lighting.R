@@ -3,13 +3,6 @@ library(misc3d)
 local({
     haveRGL <- suppressWarnings(require(rgl,quietly=TRUE))
 
-    makeTriangles <- misc3d:::makeTriangles
-    drawScene.rgl <- misc3d:::drawScene.rgl
-    translateTriangles <- misc3d:::translateTriangles
-    scaleTriangles <- misc3d:::scaleTriangles
-    updateTriangles <- misc3d:::updateTriangles
-    perspLighting <- misc3d:::perspLighting
-    
     ## Example 1: Bivariate quadratic
     zz<-surfaceTriangles(seq(-1,1,len=30), seq(-1,1,len=30),
                          function(x, y) (x^2 + y^2), color2 = "green")
