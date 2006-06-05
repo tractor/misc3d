@@ -371,35 +371,33 @@ fgrid <- function(fun, x, y, z) {
     array(fun(g$x, g$y, g$z), c(length(x), length(y), length(z)))
 }
 
+faceType <- function(v, nx, ny, level) {
+    ## the following line replaces: v <- ifelse(v > level, 1, 0)
+    p <- v > level; v[p] <- 1; v[! p] <- 0
+    v[-nx, -ny] + 2 * v[-1, -ny] + 4 * v[-1, -1] + 8 * v[-nx, -1]
+}
+
 levCells <- function(v, level) {
     nx <- dim(v)[1]
     ny <- dim(v)[2]
     nz <- dim(v)[3]
-    val <- vector("list", nz - 1)
-    type <- vector("list", nz - 1)
-    i <- 1:(nx - 1)
-    j <- 1:(ny - 1)
-    v1 <- v[,,1,drop=TRUE]
-    vv1 <- ifelse(v1 > level, 1, 0)
+    cells <- vector("list", nz - 1)
+    types <- vector("list", nz - 1)
 
-    ttt1 <- vv1[i,j] + 2 * vv1[i+1,j] + 4 * vv1[i+1,j+1] + 8 * vv1[i,j+1]
+    bottomTypes <- faceType(v[,,1], nx, ny, level)
     for (k in 1 : (nz - 1)) {
-        v2 <- v[,,k + 1,drop=TRUE]
-        vv2 <- ifelse(v2 > level, 1, 0)
-        ttt2 <- vv2[i,j] + 2 * vv2[i+1,j] + 4 * vv2[i+1,j+1] + 8 * vv2[i,j+1]
-        ttt <- ttt1 + 16 * ttt2
-        iii <- which(ttt > 0 & ttt < 255)
-        val[[k]] <- iii + (nx - 1) * (ny - 1) * (k - 1)
-        type[[k]] <- as.integer(ttt[iii])
-        v1 <- v2
-        vv1 <- vv2
-        ttt1 <- ttt2
+        topTypes <- faceType(v[,, k + 1], nx, ny, level)
+        cellTypes <- bottomTypes + 16 * topTypes
+        contourCells <- which(cellTypes > 0 & cellTypes < 255)
+        cells[[k]] <- contourCells + (nx - 1) * (ny - 1) * (k - 1)
+        types[[k]] <- as.integer(cellTypes[contourCells])
+        bottomTypes <- topTypes
     }
-    v <- unlist(val)
-    i <- as.integer((v - 1) %% (nx - 1) + 1)
-    j <- as.integer(((v - 1) %/% (nx - 1)) %% (ny - 1) + 1)
-    k <- as.integer((v - 1) %/% ((nx - 1) * (ny - 1)) + 1)
-    t <- unlist(type)
+    cells <- unlist(cells)
+    i <- as.integer((cells - 1) %% (nx - 1) + 1)
+    j <- as.integer(((cells - 1) %/% (nx - 1)) %% (ny - 1) + 1)
+    k <- as.integer((cells - 1) %/% ((nx - 1) * (ny - 1)) + 1)
+    t <- unlist(types)
     list(i = i, j = j, k = k, t = t)
 }
 
