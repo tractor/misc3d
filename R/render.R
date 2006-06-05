@@ -115,7 +115,7 @@ makePerspMatrix <- function(d) {
 ## looking down the positive Z axis.
 ## The returned value is suitable for use with trans3d.
 
-drawScene <- function(triangles, light = c(0, 0, 1),
+drawScene <- function(scene, light = c(0, 0, 1),
                       screen = list(z = 40, x = -60),
                       scale = TRUE,
                       R.mat = diag(4),
@@ -130,16 +130,16 @@ drawScene <- function(triangles, light = c(0, 0, 1),
                       add = FALSE,
                       engine = "standard",
                       col.bg = "transparent", depth = 0) {
-    triangles <- colorScene(triangles)
-    sr <- sceneRanges(triangles, xlim, ylim, zlim)
+    scene <- colorScene(scene)
+    sr <- sceneRanges(scene, xlim, ylim, zlim)
     rot.mat <- makeViewTransform(sr, scale, aspect, screen, R.mat)
-    triangles <- transformScene(triangles, rot.mat)
-    triangles <- lightScene(triangles, lighting, light)
+    scene <- transformScene(scene, rot.mat)
+    scene <- lightScene(scene, lighting, light)
     if (distance > 0) {
-        triangles <- addPerspective(triangles, distance)
+        scene <- addPerspective(scene, distance)
         rot.mat <- makePerspMatrix(distance) %*% rot.mat
     }
-    renderScene(triangles, fill, col.mesh, add, engine, polynum, col.bg, depth)
+    renderScene(scene, fill, col.mesh, add, engine, polynum, col.bg, depth)
     invisible(t(rot.mat))
 }
 
