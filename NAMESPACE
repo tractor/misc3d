@@ -5,3 +5,5 @@ export(image3d)
 export(parametric3d)
 export(slices3d)
 export(drawScene,drawScene.rgl)
+export(surfaceTriangles)
+
