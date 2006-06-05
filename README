@@ -10,8 +10,6 @@ for 3D data:
 		uses alpha blending to make outside points more
 		transparent.
 
-  lines3d       Draws connected line segments in an rgl window. 
-
   parametric3d  Plots a two-parameter surface in three dimensions in
                 rgl.  Based on Mathematica's Param3D
 
