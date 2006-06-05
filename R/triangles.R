@@ -400,9 +400,9 @@ triangleMidTriangles <- function(vb, ib, VN) {
 ## from f if f is a matrix.
 
 surfaceTriangles <- function(x, y, f, 
-                          color = "red", color2 = NA, 
-                          fill = TRUE, material = "default", alpha = 1,
-                          col.mesh = if (fill) NA else "black") {
+                             color = "red", color2 = NA,  alpha = 1,
+                             fill = TRUE, col.mesh = if (fill) NA else color,
+                             smooth = 0, material = "default") {
     if (is.function(f))
         ff <- function(ix, iy) f(x[ix], y[iy])
     else
@@ -419,7 +419,7 @@ surfaceTriangles <- function(x, y, f,
     na3 <- is.na(v3[,1]) | is.na(v3[,2]) | is.na(v3[,3])
     nna <- ! (na1 | na2 | na3)
     makeTriangles(v1[nna,], v2[nna,], v3[nna,],
-                  color = color, color2 = color2, fill = fill,
+                  color = color, color2 = color2, fill = fill, smooth = smooth,
                   material = material, col.mesh = col.mesh, alpha = alpha)
 }
 
