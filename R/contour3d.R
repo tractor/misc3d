@@ -486,8 +486,7 @@ GetBasic <- function(R, vol, level, v) {
     cube.co <-
         kronecker(rep(1,nrow(cube.1)),ver.inc) + kronecker(cube.1,rep(1,8))
 
-    value <- apply(cube.co, 1,
-                   function(x) vol[x[1], x[2], x[3]]) - level
+    value <- vol[cube.co] - level
     information <- cbind(cube.co, value)
     information <- rbind(information, rep(0, 4))
     p1 <- (1:length(R) - 1) * 8 + 1
