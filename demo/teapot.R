@@ -6,11 +6,9 @@ local({
     haveRGL <- suppressWarnings(require(rgl,quietly=TRUE))
 
     makeTriangles <- misc3d:::makeTriangles
-    drawScene.rgl <- misc3d:::drawScene.rgl
     translateTriangles <- misc3d:::translateTriangles
     scaleTriangles <- misc3d:::scaleTriangles
     updateTriangles <- misc3d:::updateTriangles
-    drawScene <- misc3d:::drawScene
     perspLighting <- misc3d:::perspLighting
     
     ttri <- makeTriangles(teapot$vertices, teapot$edges,
