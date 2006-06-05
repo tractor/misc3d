@@ -82,8 +82,8 @@ registerMaterial("metal", ambient = 0.3, diffuse = 0.3, specular = 1.0,
 registerMaterial("default", ambient = 0.3, diffuse = 0.7, specular = 0.1,
                  exponent = 10, sr = 0)
 
-# Alternate version of metal, about 56% brighter?
-registerMaterial("metal", ambient = 0.47, diffuse = 0.47, specular = 1.56,
+# Alternate version of metal, about 50% brighter?
+registerMaterial("metal", ambient = 0.45, diffuse = 0.45, specular = 1.5,
                   exponent = 25, sr = 0.5)
 # 50% would be 0.45 0.45 1.50?
 
