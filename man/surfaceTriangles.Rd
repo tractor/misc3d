@@ -28,7 +28,8 @@ surfaceTriangles(x, y, f, color = "red", color2 = NA, alpha = 1,
   \item{smooth}{integer specifying Phong shading level; currently only
     used by "standard" and "grid" engines.}
   \item{material}{material specification; currently only used by
-    "standard" and "grid" engines.}
+    "standard" and "grid" engines.  Currently possible values are the
+    character strings "dull", "shiny", "metal", and "default".}
 }
 \value{
   Returns a triangle mesh object representing the surface.

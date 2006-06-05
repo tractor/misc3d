@@ -41,8 +41,9 @@
     used by "standard" and "grid" engines. Recycled to the length of
     \code{'levels'}.}
   \item{material}{material specification; currently only used by
-    "standard" and "grid" engines. Recycled to the length of
-    \code{'levels'}.}
+    "standard" and "grid" engines. Currently possible values are the
+    character strings "dull", "shiny", "metal", and "default".  Recycled
+    to the length of \code{'levels'}.}
   \item{add}{logical; if \code{TRUE}, add to current \code{rgl} graph.}
   \item{draw}{logical; if \code{TRUE}, draw the results; otherwise,
     return contour triangles.}

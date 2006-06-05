@@ -40,7 +40,8 @@
   \item{smooth}{integer specifying Phong shading level; currently only
     used by "standard" and "grid" engines.}
   \item{material}{material specification; currently only used by
-    "standard" and "grid" engines.}
+    "standard" and "grid" engines.  Currently possible values are the
+    character strings "dull", "shiny", "metal", and "default".}
   \item{add}{logical; if \code{TRUE}, add to current graph.}
   \item{draw}{logical; if \code{TRUE}, draw the results; otherwise,
     return contour triangles.}
