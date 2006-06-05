@@ -4,10 +4,9 @@
 ## 3 matrix.
 
 makeTriangles <- function(v1, v2, v3, 
-                          color = "red", color2 = NA, 
-                          fill = TRUE, material = "default", alpha = 1,
-                          col.mesh = if (fill) NA else "black",
-	                  smooth = 0) {
+                          color = "red", color2 = NA, alpha = 1,
+                          fill = TRUE, col.mesh = if (fill) NA else color,
+	                  smooth = 0,  material = "default") {
     if (missing(v2) || missing(v3)) {
         if (missing(v2) && missing(v3))
   	    v <- unzipTriangleMatrix(v1)
@@ -27,8 +26,8 @@ makeTriangles <- function(v1, v2, v3,
 
 is.Triangles3D <- function(x) identical(class(x), "Triangles3D")
 
-updateTriangles <- function(triangles, color, color2, fill, material,
-                          col.mesh, alpha, smooth) {
+updateTriangles <- function(triangles, color, color2, alpha, fill, col.mesh,
+                            material, smooth) {
     if (! missing(color)) triangles$color <- color
     if (! missing(color2)) triangles$color2 <- color2
     if (! missing(fill)) triangles$fill <- fill
