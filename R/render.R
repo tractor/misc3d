@@ -1,4 +1,5 @@
 drawScene.rgl <- function(scene, add = FALSE, ...) {
+    loadRGL()
     if (! rgl.cur())
         open3d()
     if (!add)

@@ -1,5 +1,6 @@
-.First.lib <- function(lib, pkg){ 
-	    have.rgl <- "package:rgl" %in% search() 
-    	    if(!have.rgl) require(rgl) 
-        } 
+loadRGL <- function() {
+    if (! suppressWarnings(require(rgl,quietly=TRUE)))
+        stop("rgl is mot available")
+}
+
 
