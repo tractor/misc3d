@@ -8,9 +8,7 @@ local({
     translateTriangles <- misc3d:::translateTriangles
     scaleTriangles <- misc3d:::scaleTriangles
     updateTriangles <- misc3d:::updateTriangles
-    drawScene <- misc3d:::drawScene
     perspLighting <- misc3d:::perspLighting
-    surfaceTriangles <- misc3d:::surfaceTriangles
     
     ## Example 1: Bivariate quadratic
     zz<-surfaceTriangles(seq(-1,1,len=30), seq(-1,1,len=30),
