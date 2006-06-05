@@ -58,6 +58,8 @@ local({
     ## teapot with smoothing (Phong shading)
     drawScene(updateTriangles(ttriMetal, color2 = hc, smooth = 1),
               screen=list(y=-30,x=40), scale = FALSE)
-    drawScene(updateTriangles(ttriMetal, color2 = hc, smooth=2),
+    drawScene(updateTriangles(ttriMetal, color2 = hc, smooth = 2),
+              screen=list(y=-30,x=40), scale = FALSE)
+    drawScene(updateTriangles(ttriMetal, color2 = hc, smooth = 3),
               screen=list(y=-30,x=40), scale = FALSE)
 })
