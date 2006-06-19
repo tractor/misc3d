@@ -3,11 +3,13 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
     if (! rgl.cur())
         open3d()
     if (!add)
-        rgl.clear()
+        clear3d()
 
     triangles <- canonicalizeAndMergeScene(scene, "color", "alpha",
                                            "col.mesh", "fill")
     col <- rep(triangles$color, each = 3)
+    if (!is.na(triangles$color2))
+    	col2 <- rep(triangles$color2, each=3)
     alpha <- rep(triangles$alpha, each = 3)
     fill <- rep(triangles$fill, each = 3)
     col.mesh <- rep(triangles$col.mesh, each = 3)
@@ -31,9 +33,21 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
         data[,3] <- -data[,3]
     }
     if (nrow(data) > 0) # to avoid a segfault in rgl
-        rgl.triangles(data[,1], data[,2], data[,3],
+    {
+        if (is.na(triangles$color2)) 
+    	    triangles3d(data[,1], data[,2], data[,3],
                       col = col, alpha = alpha,
                       front = front, back = back, ...)
+        else {
+            triangles3d(data[,1], data[,2], data[,3],
+	              col = col, alpha = alpha,
+                      front = front, back = "cull", ...)
+            triangles3d(data[,1], data[,2], data[,3],
+	              col = col2, alpha = alpha,
+                      front = "cull", back = back, ...)
+        }
+    }
+        
 }
 
 renderScene <- function(scene, fill, col.mesh, add, engine, polynum, col.bg,
