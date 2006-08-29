@@ -28,8 +28,8 @@
     three arguments, the coordinates of the midpoints of the triangles
     making up the surface.  They should return a vector of colors to use
     for the triangles.}
-  \item{color2}{opposite face color; only used for "standard" and "grid"
-    engines. Recycled to the length of \code{'levels'}.}
+  \item{color2}{opposite face color. Recycled to the length of
+    \code{'levels'}.}
   \item{alpha}{alpha channel level, a number between 0 and 1. Recycled to the
     length of \code{'levels'}.}
   \item{fill}{logical; if \code{TRUE}, drawing should use filled
