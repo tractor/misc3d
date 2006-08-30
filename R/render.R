@@ -95,12 +95,14 @@ render.standard <- function(v1, v2, v3, fill, col.fill, col.mesh, add) {
 
 render.grid <- function(v1, v2, v3, fill, col.fill, col.mesh,
                         add, polynum) {
-    if (! add) {
-        rr <- screenRange(v1, v2, v3)
+    if (! add)
         grid::grid.newpage() 
-        vp <- grid::viewport(w = 0.8, h = 0.8, xscale = rr, yscale = rr)
-        grid::pushViewport(vp)
-    }
+    rr <- screenRange(v1, v2, v3)
+    grid::pushViewport(grid::viewport(w = 0.8, h = 0.8,
+                                      xscale = rr, yscale = rr,
+                                      name = "misc3dScene"))
+    on.exit(grid::upViewport())
+
     xx <- as.vector(rbind(v1[,1], v2[,1], v3[,1]))
     yy <- as.vector(rbind(v1[,2], v2[,2], v3[,2]))
     n.tri <- nrow(v1)
