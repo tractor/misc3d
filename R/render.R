@@ -106,7 +106,7 @@ render.grid <- function(v1, v2, v3, fill, col.fill, col.mesh,
     xx <- as.vector(rbind(v1[,1], v2[,1], v3[,1]))
     yy <- as.vector(rbind(v1[,2], v2[,2], v3[,2]))
     n.tri <- nrow(v1)
-    id <- rep(1:n.tri, each = 3)
+    idlen <- rep(3, n.tri)
     start <- 1
     end <- start + polynum - 1
     while (start <= n.tri) {
@@ -115,7 +115,7 @@ render.grid <- function(v1, v2, v3, fill, col.fill, col.mesh,
         j3 <- (3*start - 2) : (3 * end)
         gp <- grid::gpar(fill = col.fill[j], col = col.mesh[j])
         grid::grid.polygon(x = xx[j3], y = yy[j3], default.units = "native",
-                           gp = gp, id = id[j3]) 
+                           gp = gp, id.lengths = idlen[j]) 
         start <- start + polynum
         end <- start + polynum
     }
