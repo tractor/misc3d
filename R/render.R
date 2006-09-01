@@ -50,8 +50,8 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
         
 }
 
-renderScene <- function(scene, fill, col.mesh, add, engine, polynum, col.bg,
-                        depth) {
+renderScene <- function(scene, box, fill, col.mesh, add, engine, polynum,
+                        col.bg, depth) {
     triangles <- canonicalizeAndMergeScene(scene, "color", "col.light",
                                            "col.mesh", "fill")
     v1 <- triangles$v1
@@ -77,15 +77,16 @@ renderScene <- function(scene, fill, col.mesh, add, engine, polynum, col.bg,
     col.mesh <- ifelse(is.na(col.mesh), col.fill, col.mesh)
     i <- order(z, na.last = NA)
     if (engine == "grid") 
-        render.grid(v1[i,], v2[i,], v3[i,], fill[i], col.fill[i],
+        render.grid(v1[i,], v2[i,], v3[i,], box, fill[i], col.fill[i],
                     col.mesh[i], add, polynum)
-    else render.standard(v1[i,], v2[i,], v3[i,], fill[i], col.fill[i],
+    else render.standard(v1[i,], v2[i,], v3[i,], box, fill[i], col.fill[i],
                          col.mesh[i], add)
 }
 
-render.standard <- function(v1, v2, v3, fill, col.fill, col.mesh, add) {
+render.standard <- function(v1, v2, v3, box, fill, col.fill, col.mesh, add) {
     if (! add) {
-        rr <- screenRange(v1, v2, v3)
+        # rr <- screenRange(v1, v2, v3)
+        rr <- range(box)
         plot(rr, rr,type="n", axes = FALSE, ann = FALSE)
     }
     xx <- as.vector(rbind(v1[,1], v2[,1], v3[,1], NA))
@@ -93,11 +94,12 @@ render.standard <- function(v1, v2, v3, fill, col.fill, col.mesh, add) {
     polygon(xx, yy, col=col.fill, border=col.mesh)
 }
 
-render.grid <- function(v1, v2, v3, fill, col.fill, col.mesh,
+render.grid <- function(v1, v2, v3, box, fill, col.fill, col.mesh,
                         add, polynum) {
     if (! add)
         grid::grid.newpage() 
-    rr <- screenRange(v1, v2, v3)
+    # rr <- screenRange(v1, v2, v3)
+    rr <- range(box)
     grid::pushViewport(grid::viewport(w = 0.8, h = 0.8,
                                       xscale = rr, yscale = rr,
                                       name = "misc3dScene"))
@@ -156,7 +158,10 @@ drawScene <- function(scene, light = c(0, 0, 1),
         scene <- addPerspective(scene, distance)
         rot.mat <- makePerspMatrix(distance) %*% rot.mat
     }
-    renderScene(scene, fill, col.mesh, add, engine, polynum, col.bg, depth)
+    box <- as.matrix(expand.grid(sr$xlim, sr$ylim,sr$zlim))
+    box <- trans3dto3d(box, rot.mat)
+    renderScene(scene, box, fill, col.mesh, add, engine, polynum,
+                col.bg, depth)
     invisible(t(rot.mat))
 }
 
