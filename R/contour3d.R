@@ -371,22 +371,25 @@ fgrid <- function(fun, x, y, z) {
     array(fun(g$x, g$y, g$z), c(length(x), length(y), length(z)))
 }
 
-faceType <- function(v, nx, ny, level) {
+faceType <- function(v, nx, ny, level, maxvol) {
     ## the following line replaces: v <- ifelse(v > level, 1, 0)
-    p <- v > level; v[p] <- 1; v[! p] <- 0
+    if(level==maxvol)
+      p <- v >= level
+    else p <- v > level
+    v[p] <- 1; v[! p] <- 0
     v[-nx, -ny] + 2 * v[-1, -ny] + 4 * v[-1, -1] + 8 * v[-nx, -1]
 }
 
-levCells <- function(v, level) {
+levCells <- function(v, level, maxvol) {
     nx <- dim(v)[1]
     ny <- dim(v)[2]
     nz <- dim(v)[3]
     cells <- vector("list", nz - 1)
     types <- vector("list", nz - 1)
 
-    bottomTypes <- faceType(v[,,1], nx, ny, level)
+    bottomTypes <- faceType(v[,,1], nx, ny, level, maxvol)
     for (k in 1 : (nz - 1)) {
-        topTypes <- faceType(v[,, k + 1], nx, ny, level)
+        topTypes <- faceType(v[,, k + 1], nx, ny, level, maxvol)
         cellTypes <- bottomTypes + 16 * topTypes
         contourCells <- which(cellTypes > 0 & cellTypes < 255)
         cells[[k]] <- contourCells + (nx - 1) * (ny - 1) * (k - 1)
@@ -523,28 +526,19 @@ rescale <- function(i, x) {
     x[low] + (i - low) * (x[low + 1] - x[low])
 }
 
-computeContour3d <- function (f, level,
+computeContour3d <- function (vol, maxvol, level,
                               x = 1:dim(f)[1],
                               y = 1:dim(f)[2],
                               z = 1:dim(f)[3], mask) {
-    if (! all(is.finite(x), is.finite(y), is.finite(z)))
-        stop("'x', 'y', and 'z' values must be finite and non-missing")
+  
     nx <- length(x)
     ny <- length(y)
     nz <- length(z)
-    if (is.function(f))
-        vol <- fgrid(f, x, y, z)
-    else if (is.array(f) && length(dim(f)) == 3) {
-        if (dim(f)[1] != nx || dim(f)[2] != ny ||  dim(f)[3] != nz)
-            stop("dimensions of f do not match x, y, or z")
-        vol <- f
-    }
-    else stop("vol has to be a function or a 3-dimensional array")
 
     if (is.function(mask)) mask <- fgrid(mask, x, y, z)
     if (! all(mask)) vol[! mask] <- NA
     
-    v <- levCells(vol, level)
+    v <- levCells(vol, level, maxvol)
     tcase <- CaseRotationFlip[v$t+1,1]-1
 
     R <- which(tcase %in% c(1,2,5,8,9,11,14))
@@ -603,7 +597,7 @@ computeContour3d <- function (f, level,
     triangles
 }
 
-contourTriangles <- function(f, level,
+contourTriangles <- function(vol, maxvol, level,
                              x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
                              mask = NULL, color = "white", color2 = NA,
                              alpha = 1, fill = TRUE,
@@ -620,12 +614,12 @@ contourTriangles <- function(f, level,
             cm <- if (length(col.mesh) > 1) col.mesh[[i]] else col.mesh
             mat <- if (length(material) > 1) material[[1]] else material
             sm <- if (length(smooth) > 1) smooth[[1]] else smooth
-            val[[i]] <- contourTriangles(f, level[i], x, y, z, m, col, col2,
-                                         a, fl, cm, mat, sm)
+            val[[i]] <- contourTriangles(vol, maxvol, level[i], x, y, z, m,
+                                         col, col2, a, fl, cm, mat, sm)
         }
         val
     }
-    else makeTriangles(computeContour3d(f, level, x, y, z, mask),
+    else makeTriangles(computeContour3d(vol, maxvol, level, x, y, z, mask),
                        color = color, color2 = color2, alpha = alpha,
                        fill = fill, col.mesh = col.mesh,
                        material = material, smooth = smooth)
@@ -637,8 +631,44 @@ contour3d <- function(f, level,
                       fill = TRUE, col.mesh = if (fill) NA else color,
                       material = "default", smooth = 0,
                       add = FALSE, draw = TRUE, engine = "rgl", ...){
-    scene <- contourTriangles(f, level, x, y, z, mask, color, color2, alpha,
-                              fill, col.mesh, material, smooth)
+  
+    if (! all(is.finite(x), is.finite(y), is.finite(z)))
+        stop("'x', 'y', and 'z' values must be finite and non-missing")
+    if (is.function(f) || is.array(f) && length(dim(f)) == 3){
+        if (is.function(f))
+            vol <- fgrid(f, x, y, z)
+        else{
+          if (dim(f)[1] != length(x) || dim(f)[2] != length(y) ||  dim(f)[3] != length(z))
+            stop("dimensions of f do not match x, y, or z")
+          vol <- f
+        }
+
+        maxvol <- max(vol)
+        minvol <- min(vol)
+        con <- which(level > maxvol | level < minvol)
+        if (length(con) == length(level))
+            stop("The level has to be within the range of f")
+        else if (length(con) > 0){
+            print(paste("The levels ", level[con], " outside the range of f have been removed from the level list", sep=""))
+            level <- level[-con]
+            if (is.list(mask)) mask <- mask[-con] 
+            if (length(color) > 1) color <- color[-con] 
+            if (length(color2) > 1) color2 <- color2[-con] 
+            if (length(alpha) > 1) alpha <- alpha[-con] 
+            if (length(fill) > 1) fill <- fill[-con]
+            if (length(col.mesh) > 1) col.mesh <- col.mesh[-con]
+            if (length(material) > 1) material <- material[-con] 
+            if (length(smooth) > 1) smooth <- smooth[-con] 
+        }
+    
+      }
+
+    else stop("vol has to be a function or a 3-dimensional array")
+
+    
+    
+    scene <- contourTriangles(vol, maxvol, level, x, y, z, mask, color, color2,
+                              alpha, fill, col.mesh, material, smooth)
     if (! draw || engine == "none")
         scene
     else {
