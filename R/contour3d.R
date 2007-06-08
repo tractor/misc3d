@@ -635,8 +635,11 @@ contour3d <- function(f, level,
     if (! all(is.finite(x), is.finite(y), is.finite(z)))
         stop("'x', 'y', and 'z' values must be finite and non-missing")
     if (is.function(f) || is.array(f) && length(dim(f)) == 3){
-        if (is.function(f))
+        if (is.function(f)){
+            if (length(formals(f)) != 3)
+                stop("The function has to have 3 arguments.")
             vol <- fgrid(f, x, y, z)
+          }
         else{
           if (dim(f)[1] != length(x) || dim(f)[2] != length(y) ||  dim(f)[3] != length(z))
             stop("dimensions of f do not match x, y, or z")
@@ -649,7 +652,7 @@ contour3d <- function(f, level,
         if (length(con) == length(level))
             stop("The level has to be within the range of f")
         else if (length(con) > 0){
-            print(paste("The levels ", level[con], " outside the range of f have been removed from the level list", sep=""))
+            warning(paste("The level ", level[con], " outside the range of f has been removed from the level list", sep=""))
             level <- level[-con]
             if (is.list(mask)) mask <- mask[-con] 
             if (length(color) > 1) color <- color[-con] 
