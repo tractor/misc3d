@@ -50,7 +50,6 @@ slices3d <- function(vol, main, scale = 0.8, col=gray.colors(512), cross = TRUE)
             }
         }
         fr <- tkframe(tt)
-        lab <- tklabel(fr, text = "try")
         s <- tkscale(fr, command=f, from=1, to=d[i], resolution=1,
                 variable=bbv[[i]], showvalue=FALSE, orient="horiz")
         l1 <- tklabel(fr, text = dn[i])
