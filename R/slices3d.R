@@ -15,12 +15,13 @@ vslice <- function(vol, which, k, tpt = 1) {
                z = vol[,,k])
 }
 
-slices3d <- function(vol, scale = 0.8, col=gray.colors(512), cross = TRUE) {
+slices3d <- function(vol, main, scale = 0.8, col=gray.colors(512), cross = TRUE) {
     if (! require(tkrplot)) stop("tkrplot is required.");
     r <- range(vol,na.rm = TRUE)
     d <- dim(vol)
     dn <- c("x", "y", "z", "t")
     tt <- tktoplevel()
+    tktitle(tt) <- main
     bb <- c(round(d[1:3]) / 2, 1)
     bbv <- lapply(bb, tclVar)
     mkimg <- function(which) {
@@ -49,6 +50,7 @@ slices3d <- function(vol, scale = 0.8, col=gray.colors(512), cross = TRUE) {
             }
         }
         fr <- tkframe(tt)
+        lab <- tklabel(fr, text = "try")
         s <- tkscale(fr, command=f, from=1, to=d[i], resolution=1,
                 variable=bbv[[i]], showvalue=FALSE, orient="horiz")
         l1 <- tklabel(fr, text = dn[i])
