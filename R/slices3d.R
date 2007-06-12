@@ -62,14 +62,14 @@ slices3d <- function(vol, main="Three Planes View", scale = 0.8, col=gray.colors
                x = { i <- 1; j <- 2; k <- 3 },
                y = { i <- 2; j <- 1; k <- 3 },
                z = { i <- 3; j <- 1; k <- 2 })
-           
         tkbind(img[[i]],"<Button-1>", function(x,y){
-          #read the size of each image. 386 on r-lnx400
-          bb[j] <<- round(as.numeric(x)/386*d[j])
-          bb[k] <<- d[k] - round(as.numeric(y)/386*d[k])
+          wid <- as.integer(tkwinfo("width",img[[i]]))
+          hei <- as.integer(tkwinfo("height",img[[i]]))
+          bb[j] <<- as.numeric(x)/wid*d[j]
+          bb[k] <<- d[k] - as.numeric(y)/hei*d[k]
           for (j in 1:3){
             tkrreplot(img[[j]])
-            tclvalue(bbv[[j]]) <<- as.character(bb[j])
+            tclvalue(bbv[[j]]) <<- as.character(round(bb[j]))
           }
         })
       }
