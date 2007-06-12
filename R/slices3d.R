@@ -15,7 +15,7 @@ vslice <- function(vol, which, k, tpt = 1) {
                z = vol[,,k])
 }
 
-slices3d <- function(vol, main, scale = 0.8, col=gray.colors(512), cross = TRUE) {
+slices3d <- function(vol, main="Three Planes View", scale = 0.8, col=gray.colors(512), cross = TRUE) {
     if (! require(tkrplot)) stop("tkrplot is required.");
     r <- range(vol,na.rm = TRUE)
     d <- dim(vol)
@@ -57,6 +57,7 @@ slices3d <- function(vol, main, scale = 0.8, col=gray.colors(512), cross = TRUE)
         tkgrid(l1, s, l2)
         fr
     }
+   
     s <- lapply(1:3, mkscale)
     img <- lapply(c("x", "y", "z"), mkimg)
     tkgrid(img[[1]], img[[2]])
