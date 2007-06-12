@@ -40,8 +40,8 @@ slices3d <- function(vol, main="Three Planes View", scale = 0.8, col=gray.colors
     }
     mkscale <- function(i) {
         f <- function(...) {
-            b <- as.numeric(tclvalue(bbv[[i]]))
-            if (b != bb[i]) {
+             b <- as.numeric(tclvalue(bbv[[i]]))
+             if (b != bb[i]) {
                 bb[i] <<- b
                 if (cross || i == 4)
                     for (j in 1:3) tkrreplot(img[[j]])
@@ -53,11 +53,26 @@ slices3d <- function(vol, main="Three Planes View", scale = 0.8, col=gray.colors
         s <- tkscale(fr, command=f, from=1, to=d[i], resolution=1,
                 variable=bbv[[i]], showvalue=FALSE, orient="horiz")
         l1 <- tklabel(fr, text = dn[i])
-        l2 <- tklabel(fr, text = bb[i])
+        l2 <- tklabel(fr, textvariable = bbv[[i]])
         tkgrid(l1, s, l2)
         fr
     }
-   
+    move <- function(which){
+        switch(which,
+               x = { i <- 1; j <- 2; k <- 3 },
+               y = { i <- 2; j <- 1; k <- 3 },
+               z = { i <- 3; j <- 1; k <- 2 })
+           
+        tkbind(img[[i]],"<Button-1>", function(x,y){
+          #read the size of each image. 386 on r-lnx400
+          bb[j] <<- round(as.numeric(x)/386*d[j])
+          bb[k] <<- d[k] - round(as.numeric(y)/386*d[k])
+          for (j in 1:3){
+            tkrreplot(img[[j]])
+            tclvalue(bbv[[j]]) <<- as.character(bb[j])
+          }
+        })
+      }
     s <- lapply(1:3, mkscale)
     img <- lapply(c("x", "y", "z"), mkimg)
     tkgrid(img[[1]], img[[2]])
@@ -66,5 +81,7 @@ slices3d <- function(vol, main="Three Planes View", scale = 0.8, col=gray.colors
     if (length(d) == 4 && d[4] > 1)
         tkgrid(s[[3]], mkscale(4))
     else tkgrid(s[[3]])
+    lapply(c("x", "y", "z"), move)
+
     environment()
 }
