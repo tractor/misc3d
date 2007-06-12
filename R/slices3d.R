@@ -65,11 +65,11 @@ slices3d <- function(vol, main="Three Planes View", scale = 0.8, col=gray.colors
         tkbind(img[[i]],"<Button-1>", function(x,y){
           wid <- as.integer(tkwinfo("width",img[[i]]))
           hei <- as.integer(tkwinfo("height",img[[i]]))
-          bb[j] <<- as.numeric(x)/wid*d[j]
-          bb[k] <<- d[k] - as.numeric(y)/hei*d[k]
+          bb[j] <<- round(as.numeric(x)/wid*d[j])
+          bb[k] <<- d[k] - round(as.numeric(y)/hei*d[k])
           for (j in 1:3){
             tkrreplot(img[[j]])
-            tclvalue(bbv[[j]]) <<- as.character(round(bb[j]))
+            tclvalue(bbv[[j]]) <<- as.character(bb[j])
           }
         })
       }
