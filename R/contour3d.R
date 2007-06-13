@@ -196,58 +196,52 @@ PreProcessing <- local({
                   c(3, 4, 12, 6, 7, 11, 6, 11, 2, 6, 2, 10,2, 10, 1,10,1, 9,
                     10,9, 5, 5, 9, 8, 5, 8, 6, 8, 6,  7)),
              c(1,4,2,1,6,4,1,5,6,3,6,4))
+
     switch23 <- function(x){
         num <- length(x) / 3
-        temp <- x[c(0: (num-1))*3 + 2]
-        x[c(0: (num-1))*3 + 2] <- x[c(0: (num-1))*3+ 3]
-        x[c(0: (num-1))*3 + 3] <- temp
+        temp <- x[0: (num-1)*3 + 2]
+        x[0: (num-1)*3 + 2] <- x[0: (num-1)*3+ 3]
+        x[0: (num-1)*3 + 3] <- temp
         x
     }
 
     SwitchSeq <- function(ed){
-        for (i in 1:length(ed)){
-            ver <- ed[[i]]
-            if (is.list(ver)){
-                for(j in 1:length(ver)){
-                    ed[[i]][[j]] <- switch23(ver[[j]])
-                }
-            }
-            else
-                ed[[i]] <- switch23(ver)
+        if (is.list(ed)){
+            lapply(1:length(ed), function(x) SwitchSeq(ed[[x]]))
         }
-        ed
+        else
+            switch23(ed)
     }
 
     EdgeSequence2 <- SwitchSeq(EdgeSequence1)
 
-    GetEdges <- local({
-        getedge <- function(x) {
-            case <- x[1]
-            rotation <- x[2]
-            map <- rep(0,8)
-            for(i in 1:8){
-                temp <- as.integer(BasicRotation[rotation,][i])
-                map[temp] <- i}
-            sapply(BasicEdges[[case-1]], function(x){
-                if (x!=13){
-                    EndP1 <- EdgePoints[x,2]
-                    EndP2 <- EdgePoints[x,3]
-                    newEdge <- EdgePoints[(EdgePoints[,2]==map[EndP1]
-                                           &EdgePoints[,3]==map[EndP2])|
-                                          (EdgePoints[,3]==map[EndP1]
-                                           &EdgePoints[,2]==map[EndP2]),][1]
-                }
-                else  newEdge <- 13
-                newEdge})
+    getedge <- function(x){
+        case <- x[1]
+        rotation <- x[2]
+        map <- rep(0,8)
+        for(i in 1:8){
+            temp <- as.integer(BasicRotation[rotation,][i])
+            map[temp] <- i
         }
-        Edges <-
-            apply(CaseRotationFlip[-c(1,256),], 1, getedge)
-
+        sapply(BasicEdges[[case-1]], function(x){
+            if (x!=13){
+                EndP1 <- EdgePoints[x,2]
+                EndP2 <- EdgePoints[x,3]
+                newEdge <- EdgePoints[(EdgePoints[,2]==map[EndP1]
+                                       &EdgePoints[,3]==map[EndP2])|
+                                      (EdgePoints[,3]==map[EndP1]
+                                       &EdgePoints[,2]==map[EndP2]),][1]
+             }
+            else  newEdge <- 13
+            newEdge})
+    }
+    
+    GetEdges <- local({
+        Edges <- apply(CaseRotationFlip[-c(1,256),], 1, getedge)
         Case <- cbind(seq(1:256), CaseRotationFlip[,c(1,3)])
         Edges <- apply(Case[-c(1,256),], 1, function(x){
             case <- x[2]-1
             EdgeNum <- x[1]-1
-
             if (x[3]==1)
                 sapply(EdgeSequence1[[case]], function(x) Edges[[EdgeNum]][x])
             else sapply(EdgeSequence2[[case]], function(x) Edges[[EdgeNum]][x])
@@ -262,50 +256,53 @@ PreProcessing <- local({
                          ncol=5)
     FacePoints <- cbind(FacePoints, apply(FacePoints[,2:5],1,prod))
 
-    GetFaces <- local({
-        getface <- function(x) {
-            case <- x[1]
-            rotation <- x[2]
-            map <- rep(0,8)
-            for(i in 1:8){
-                temp <- as.integer(BasicRotation[rotation,][i])
-                map[temp] <- i}
-            sapply(BasicFace[[case-1]], function(x){
-                EndP <- rep(0,4)
-                if (x==0) newFace <- 0
-                else if (x==7) newFace <- 7
-                else {
-                    for (i in 1:4){
-                        point <- FacePoints[x,i+1]
-                        EndP[i] <- map[point]
-                    }
-                    newFace<- FacePoints[FacePoints[,6]==prod(EndP[1:4]),][1]
-                }
-                newFace})
+    getface <- function(x) {
+        case <- x[1]
+        rotation <- x[2]
+        map <- rep(0,8)
+        for(i in 1:8){
+            temp <- as.integer(BasicRotation[rotation,][i])
+            map[temp] <- i
         }
-        Faces <-
-            apply(CaseRotationFlip[-c(1,256),], 1, getface)
+        sapply(BasicFace[[case-1]], function(x){
+            EndP <- rep(0,4)
+            if (x==0) newFace <- 0
+            else if (x==7) newFace <- 7
+            else {
+                for (i in 1:4){
+                     point <- FacePoints[x,i+1]
+                     EndP[i] <- map[point]
+                }
+                newFace<- FacePoints[FacePoints[,6]==prod(EndP[1:4]),][1]
+            }
+            newFace})
+    }
+    
+    flipface <- function(case, face){
+        if (face!=0){
+            index <- explode(case+1)
+            if (sum(index) > 4)
+                index <- ifelse(index==0,1,0)
+            if (face!=7 && index[FacePoints[face,2]]==0)
+                face <- -face
+            else if (face==7){
+                tcase <- CaseRotationFlip[case+1,1]-1
+                if ((tcase == 4 || tcase==6 || tcase==10 ||tcase==12)
+                    && !(index[1]+index[7]==2) && !(index[3]+index[5]==2))
+                    face <- -face
+                else if (tcase==7
+                         && !(index[1]+index[7]==0) && !(index[3]+index[5]==0))
+                    face <- -face
+            }
+        }
+        face
+    }
 
-        for (i in 1:254){
-            for(j in 1:length(Faces[[i]])){
-                x <- Faces[[i]][j]
-                if (x!=0){
-                    index <- explode(i+1)
-                    if (sum(index) > 4)
-                        index <- ifelse(index==0,1,0)
-                    if (x!=7 && index[FacePoints[x,2]]==0)
-                        Faces[[i]][j] <- -Faces[[i]][j]
-                    if (x==7){
-                        tcase <- CaseRotationFlip[i+1,1]-1
-                        if ((tcase == 4 || tcase==6 || tcase==10 ||tcase==12)
-                            && !(index[1]+index[7]==2)
-                            && !(index[3]+index[5]==2))
-                            Faces[[i]][j] <- -Faces[[i]][j]
-                        if (tcase==7 && !(index[1]+index[7]==0)
-                            && !(index[3]+index[5]==0))
-                            Faces[[i]][j] <- -Faces[[i]][j]
-                    }
-                }}}
+    GetFaces <- local({
+        Faces <- apply(CaseRotationFlip[-c(1,256),], 1, getface)
+        for (i in 1:254)
+            for(j in 1:length(Faces[[i]]))
+                Faces[[i]][j] <- flipface(i, Faces[[i]][j])
         Faces
     })
 
