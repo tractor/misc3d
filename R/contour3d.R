@@ -524,9 +524,9 @@ rescale <- function(i, x) {
 }
 
 computeContour3d <- function (vol, maxvol, level,
-                              x = 1:dim(f)[1],
-                              y = 1:dim(f)[2],
-                              z = 1:dim(f)[3], mask) {
+                              x = 1:dim(vol)[1],
+                              y = 1:dim(vol)[2],
+                              z = 1:dim(vol)[3], mask) {
   
     nx <- length(x)
     ny <- length(y)
@@ -595,7 +595,9 @@ computeContour3d <- function (vol, maxvol, level,
 }
 
 contourTriangles <- function(vol, maxvol, level,
-                             x = 1:dim(f)[1], y = 1:dim(f)[2], z = 1:dim(f)[3],
+                             x = 1:dim(vol)[1],
+                             y = 1:dim(vol)[2],
+                             z = 1:dim(vol)[3],
                              mask = NULL, color = "white", color2 = NA,
                              alpha = 1, fill = TRUE,
                              col.mesh = if (fill) NA else color,
