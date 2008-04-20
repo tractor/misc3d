@@ -124,10 +124,10 @@ render.grid <- function(v1, v2, v3, box, fill, col.fill, col.mesh,
 }
 
 makePerspMatrix <- function(d) {
-    rbind(c(1, 0,     0, 0),
-          c(0, 1,     0, 1),
-          c(0, 0, 1 + d, 0),
-          c(0, 0,    -d, 1))
+    rbind(c(1, 0,  0, 0),
+          c(0, 1,  0, 0),
+          c(0, 0,  1, 0),
+          c(0, 0, -1, 1 / d))
 }
 
 ## drawScene is a simple function for plotting triangles.  The viewer is
