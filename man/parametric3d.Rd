@@ -1,4 +1,4 @@
-141\name{parametric3d}
+\name{parametric3d}
 \alias{parametric3d}
 \title{Draw a 3D Parametric Plot}
 \description{
