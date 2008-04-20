@@ -96,14 +96,16 @@ render.standard <- function(v1, v2, v3, box, fill, col.fill, col.mesh, add) {
 
 render.grid <- function(v1, v2, v3, box, fill, col.fill, col.mesh,
                         add, polynum) {
-    if (! add)
-        grid::grid.newpage() 
-    # rr <- screenRange(v1, v2, v3)
-    rr <- range(box)
-    grid::pushViewport(grid::viewport(w = 0.8, h = 0.8,
-                                      xscale = rr, yscale = rr,
-                                      name = "misc3dScene"))
-    on.exit(grid::upViewport())
+    if (! add) {
+        grid::grid.newpage()
+        ## maybe a separate option to use a new viewport even with add
+        ## = TRUE?
+        rr <- range(box)
+        grid::pushViewport(grid::viewport(w = 0.8, h = 0.8,
+                                          xscale = rr, yscale = rr,
+                                          name = "misc3dScene"))
+        on.exit(grid::upViewport())
+    }
 
     xx <- as.vector(rbind(v1[,1], v2[,1], v3[,1]))
     yy <- as.vector(rbind(v1[,2], v2[,2], v3[,2]))
@@ -114,10 +116,10 @@ render.grid <- function(v1, v2, v3, box, fill, col.fill, col.mesh,
     while (start <= n.tri) {
         end <- min(end, n.tri)
         j <- start : end
-        j3 <- (3*start - 2) : (3 * end)
+        j3 <- (3 * start - 2) : (3 * end)
         gp <- grid::gpar(fill = col.fill[j], col = col.mesh[j])
         grid::grid.polygon(x = xx[j3], y = yy[j3], default.units = "native",
-                           gp = gp, id.lengths = idlen[j]) 
+                           gp = gp, id.lengths = idlen[j])
         start <- start + polynum
         end <- start + polynum
     }
@@ -151,14 +153,17 @@ drawScene <- function(scene, light = c(0, 0, 1),
                       col.bg = "transparent", depth = 0) {
     scene <- colorScene(scene)
     sr <- sceneRanges(scene, xlim, ylim, zlim)
-    rot.mat <- makeViewTransform(sr, scale, aspect, screen, R.mat)
+    if (add)
+        rot.mat <- R.mat
+    else
+        rot.mat <- makeViewTransform(sr, scale, aspect, screen, R.mat)
     scene <- transformScene(scene, rot.mat)
     scene <- lightScene(scene, lighting, light)
     if (distance > 0) {
         scene <- addPerspective(scene, distance)
         rot.mat <- makePerspMatrix(distance) %*% rot.mat
     }
-    box <- as.matrix(expand.grid(sr$xlim, sr$ylim,sr$zlim))
+    box <- as.matrix(expand.grid(sr$xlim, sr$ylim, sr$zlim))
     box <- trans3dto3d(box, rot.mat)
     renderScene(scene, box, fill, col.mesh, add, engine, polynum,
                 col.bg, depth)

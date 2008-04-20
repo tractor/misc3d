@@ -61,7 +61,7 @@ drawScene.rgl(scene, add = FALSE, ...)
     adequate.}
   \item{lighting}{a lighting function.  Current options are
     \code{phongLighting} and \code{perspLighting}.}
-  \item{add}{logical; if \code{TRUE}, add to current \code{rgl} graph.}
+  \item{add}{logical; if \code{TRUE}, add to current graph.}
   \item{engine}{character; currently "standard" or "grid".}
   \item{col.bg}{background dolor to use in color depth cuing.}
   \item{depth}{numeric, between 0 and 1.  Controls the amount of color
@@ -83,6 +83,11 @@ drawScene.rgl(scene, add = FALSE, ...)
   factors such as viewer and light position.
 
   \code{drawScene.rgl} renders the scene in an rgl window.
+
+  If \code{add=TRUE} in standard or grid graphics then coordinates are
+  not further scaled after the transformations implied by \code{R.mat},
+  and \code{distance} are applied.  For the grid engine drawing occurs
+  in the current viewport.
 }
 \note{
   The "rgl" engine now uses the standard rgl coordinates instead of
@@ -91,9 +96,10 @@ drawScene.rgl(scene, add = FALSE, ...)
   \code{options(old.misc3d.orientation=TRUE)}.
 
   Transparency only works properly in the "rgl" engine.  For standard or
-  grid graphics on pdf or quartz devices using alpha levels less than 1
-  does work but the triangle borders show as a less transparent mesh.
-  }
+  grid graphics on devices that support transparency using alpha levels
+  less than 1 does work but the triangle borders show as a less
+  transparent mesh.
+}
 \seealso{\code{\link[rgl]{rgl.material}}}
 \examples{
   vtri <- local({
