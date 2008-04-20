@@ -1,4 +1,4 @@
-\name{parametric3d}
+141\name{parametric3d}
 \alias{parametric3d}
 \title{Draw a 3D Parametric Plot}
 \description{
@@ -137,6 +137,5 @@
                engine = "standard", scale = FALSE,
                color = "red", color2 = "blue", material = "shiny")
 
-}
 }
 \keyword{hplot}
