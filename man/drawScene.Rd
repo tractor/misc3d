@@ -13,7 +13,8 @@ drawScene(scene, light = c(0, 0, 1),
           fill = TRUE, xlim = NULL, ylim = NULL, zlim = NULL,
           aspect = c(1, 1), col.mesh = if (fill) NA else "black",
           polynum = 100, lighting = phongLighting, add = FALSE,
-          engine = "standard", col.bg = "transparent", depth = 0)
+          engine = "standard", col.bg = "transparent", depth = 0,
+          newpage = TRUE)
 drawScene.rgl(scene, add = FALSE, ...)
 }
 \arguments{
@@ -67,6 +68,9 @@ drawScene.rgl(scene, add = FALSE, ...)
   \item{depth}{numeric, between 0 and 1.  Controls the amount of color
     blending to \code{col.bg} for objects farther from the
     viewer. \code{depth} equal to zero means no depth cuing.}
+  \item{newpage}{logical; if \code{TRUE}, and \code{add} is true, then
+    the "grid" engine will call \code{"grid.newpage"}; otherwise the
+    current page is used.}
   \item{...}{rgl material and texture properties; see documentation for
     \code{\link[rgl]{rgl.material}}}
 }

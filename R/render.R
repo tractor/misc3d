@@ -51,7 +51,7 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
 }
 
 renderScene <- function(scene, box, fill, col.mesh, add, engine, polynum,
-                        col.bg, depth) {
+                        col.bg, depth, newpage) {
     triangles <- canonicalizeAndMergeScene(scene, "color", "col.light",
                                            "col.mesh", "fill")
     v1 <- triangles$v1
@@ -78,7 +78,7 @@ renderScene <- function(scene, box, fill, col.mesh, add, engine, polynum,
     i <- order(z, na.last = NA)
     if (engine == "grid") 
         render.grid(v1[i,], v2[i,], v3[i,], box, fill[i], col.fill[i],
-                    col.mesh[i], add, polynum)
+                    col.mesh[i], add, polynum, newpage)
     else render.standard(v1[i,], v2[i,], v3[i,], box, fill[i], col.fill[i],
                          col.mesh[i], add)
 }
@@ -95,11 +95,9 @@ render.standard <- function(v1, v2, v3, box, fill, col.fill, col.mesh, add) {
 }
 
 render.grid <- function(v1, v2, v3, box, fill, col.fill, col.mesh,
-                        add, polynum) {
+                        add, polynum, newpage) {
     if (! add) {
-        grid::grid.newpage()
-        ## maybe a separate option to use a new viewport even with add
-        ## = TRUE?
+        if (newpage) grid::grid.newpage()
         rr <- range(box)
         grid::pushViewport(grid::viewport(w = 0.8, h = 0.8,
                                           xscale = rr, yscale = rr,
@@ -150,7 +148,7 @@ drawScene <- function(scene, light = c(0, 0, 1),
                       lighting = phongLighting,
                       add = FALSE,
                       engine = "standard",
-                      col.bg = "transparent", depth = 0) {
+                      col.bg = "transparent", depth = 0, newpage = TRUE) {
     scene <- colorScene(scene)
     sr <- sceneRanges(scene, xlim, ylim, zlim)
     if (add)
@@ -166,7 +164,7 @@ drawScene <- function(scene, light = c(0, 0, 1),
     box <- as.matrix(expand.grid(sr$xlim, sr$ylim, sr$zlim))
     box <- trans3dto3d(box, rot.mat)
     renderScene(scene, box, fill, col.mesh, add, engine, polynum,
-                col.bg, depth)
+                col.bg, depth, newpage)
     invisible(t(rot.mat))
 }
 
