@@ -48,12 +48,10 @@ t2ve <- function (triangles)
     S <- 10^5
     score <- function(v, d) floor(as.vector(v %*% d))
     scale <- function(v) (1 - 1 / S) * (v - vbmin) / (vbmax - vbmin)
-    vbs <- scale(vb)
-    d <- c(1, S, S^2)
-    scores <- score(vbs, d)
+    d <- c(S, S^2, S^3)
+    scores <- score(scale(vb), d)
     vb <- vb[! duplicated(scores),]
-    vbs <- scale(vb)
-    scores <- score(vbs, d)
+    scores <- score(scale(vb), d)
     ib <- rbind(match(score(scale(triangles$v1), d), scores),
                 match(score(scale(triangles$v2), d), scores),
                 match(score(scale(triangles$v3), d), scores))
@@ -336,6 +334,18 @@ vertexNormals <- function(vt, N) {
 interpolateVertexNormals <- function(VN, ib) {
     z <- (VN[ib[1,],] + VN[ib[2,],] + VN[ib[3,],]) / 3
     z / sqrt(rowSums(z^2))
+}
+
+## triangleVertexNormals computes the normals at the vertices by
+## averaging the normals of the incident triangles.  This is used by
+## the rgl engine.  The result form is chosen so zipTriangles can be
+## used on it.
+triangleVertexNormals <- function(v) {
+    N <- triangleNormals(v)
+    ve <- t2ve(v)
+    vt <- vertexTriangles(ve)
+    VN <- misc3d:::vertexNormals(vt, N)
+    list(v1 = VN[ve$ib[1,],], v2 = VN[ve$ib[2,],], v3 = VN[ve$ib[3,],])
 }
 
 vertexColors <- function(vt, col) {
