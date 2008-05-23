@@ -5,7 +5,9 @@ kde3d <- function (x, y, z, h, n = 20, lims = c(range(x), range(y), range(z)))
     if (length(y) != nx || length(z) != nx) 
         stop("data vectors must be the same length")
     if (missing(h)) 
-        h <- c(bandwidth.nrd(x), bandwidth.nrd(y), bandwidth.nrd(z)) / 6
+        h <- c(MASS::bandwidth.nrd(x),
+               MASS::bandwidth.nrd(y),
+               MASS::bandwidth.nrd(z)) / 6
     else if (length(h) != 3)
         h <- rep(h, length = 3)
     if (length(n) != 3)

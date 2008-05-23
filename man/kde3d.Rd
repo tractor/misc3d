@@ -29,7 +29,7 @@
   \pkg{MASS}.
 } 
 \seealso{
-  \code{\link[MASS]{kde2d}.
+  \code{\link[MASS]{kde2d}}.
 }
 \examples{
   with(quakes, {
