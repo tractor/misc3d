@@ -5,10 +5,16 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
     if (!add)
         clear3d()
 
-    triangles <- canonicalizeAndMergeScene(scene, "color", "alpha",
+    scene <- colorScene(scene)
+    triangles <- canonicalizeAndMergeScene(scene, "color", "color2", "alpha",
                                            "col.mesh", "fill", "smooth")
+    use.col2 <- ! all(is.na(triangles$color2))
+    if (use.col2 && any(is.na(triangles$color2)))
+        warning(paste("mixing surfaces with and without color2 may not",
+                      "work properly in the rgl engine"))
+
     col <- rep(triangles$color, each = 3)
-    if (!is.na(triangles$color2))
+    if (use.col2)
     	col2 <- rep(triangles$color2, each=3)
     alpha <- rep(triangles$alpha, each = 3)
     fill <- rep(triangles$fill, each = 3)
@@ -21,7 +27,7 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
     else if (any(fill))
         ##**** handle these by splitting; OK if no alpha < 1
         stop(paste("for now rgl engine cannot handle mixed fill/wire",
-                   "frame contours"))
+                   "frame surfaces"))
     else {
         front <- "lines"
         back <- "lines"
@@ -41,7 +47,7 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
     else normals <- NULL
     if (nrow(data) > 0) # to avoid a segfault in rgl
     {
-        if (is.na(triangles$color2)) 
+        if (! use.col2)
     	    triangles3d(data[,1], data[,2], data[,3],
                       col = col, alpha = alpha, normals = normals,
                       front = front, back = back, ...)
