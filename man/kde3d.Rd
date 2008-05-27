@@ -14,7 +14,7 @@
     recycled if length is less than three; default is based on the
     normal reference bandwidth (see \code{\link[MASS]{bandwidth.nrd}}).}
   \item{n}{numbers of grid points to use for each dimension; recycled if
-    fewer length is less than three.}
+    length is less than three.}
   \item{lims}{lower and upper limits on the region for which the density
     estimate is to be computed, provides as a vector of length 6,
     corresponding to low and high values of \code{x}, \code{y}, and

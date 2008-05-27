@@ -2,7 +2,7 @@
 \alias{pointsTetrahedra}
 \title{Create a Set of Tetrahetra Centered at Data Points}
 \description{
-  Creates a triangle scene consisting of smal tetrahedra centered at
+  Creates a scene consisting of small tetrahedra centered at
   specified data points in three dimensions.
 }
 \usage{
