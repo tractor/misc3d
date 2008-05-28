@@ -11,7 +11,7 @@ pointsTetrahedra(x, y, z, size = 0.01, color = "black", ...)
 \arguments{
   \item{x, y, z}{numeric vectors representing point coordinates.}
   \item{size}{numeric; multiple of data range to use for the size of the
-    tetrahedron in each dimension; recucled to length 3.}
+    tetrahedron in each dimension; recycled to length 3.}
   \item{color}{color to use for the tetrahedra.}
   \item{...}{additional arguments to be passed on to
     \code{makeTriangles}.}
