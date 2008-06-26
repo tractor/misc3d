@@ -54,8 +54,8 @@ slices3d(vol1, vol2=NULL, zlim1, zlim2, col1, col2, main,
   .libPaths("~/Rlib")
   library(AnalyzeFMRI)
   source("~/Rlib/slices3d.R")
-  temp<-f.read.analyze.volume("/home/fengd/fmri/connection/RSN.feat/reg/standardanalyze.img")
-  z<-f.read.analyze.volume("/home/fengd/fmri/connection/RSNold/HDA192/ZmapHDA192.img")
+  temp<-f.read.analyze.volume("standard.img")
+  z<-f.read.analyze.volume("z-map.img")
   slices3d(vol1=temp, vol2=z[,,,1], zlim2=c(2,Inf),col2=heat.colors(32),
           main="Regions above threshold values.")
   }
