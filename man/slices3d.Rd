@@ -51,9 +51,7 @@ slices3d(vol1, vol2=NULL, zlim1, zlim2, col1, col2, main,
 \dontrun{
   #Example 2: Put a z-map from fMRI data on top of a structure
   #           image. The threshold of the z-map is 2.
-  .libPaths("~/Rlib")
   library(AnalyzeFMRI)
-  source("~/Rlib/slices3d.R")
   temp<-f.read.analyze.volume("standard.img")
   z<-f.read.analyze.volume("z-map.img")
   slices3d(vol1=temp, vol2=z[,,,1], zlim2=c(2,Inf),col2=heat.colors(32),
