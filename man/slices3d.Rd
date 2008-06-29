@@ -6,7 +6,7 @@
   dimensional volume data.
 }
 \usage{
-slices3d(vol1, vol2=NULL, zlim1, zlim2, col1, col2, main,
+slices3d(vol1, vol2=NULL, rlim1, rlim2, col1, col2, main,
          scale = 0.8, alpha=1, cross = TRUE)
 }
 \arguments{
@@ -15,10 +15,10 @@ slices3d(vol1, vol2=NULL, zlim1, zlim2, col1, col2, main,
   \item{vol2}{a three or four dimensional real array. If two images are
     overlaid, then this is the one on top. The default value is
     \code{NULL}, when only \code{vol1} is drawn.}
-  \item{zlim1}{the minimum and maximum \code{vol1} values for which
+  \item{rlim1}{the minimum and maximum \code{vol1} values for which
     colors should be plotted, defaulting to the range of the values of
     \code{vol1}.}
-  \item{zlim2}{the minimum and maximum \code{vol2} values for which
+  \item{rlim2}{the minimum and maximum \code{vol2} values for which
     colors should be plotted, defaulting to the range of the values of
     \code{vol2}, if two images are overlaid.}
   \item{col1}{a list of colors for \code{vol1}.}
@@ -54,7 +54,7 @@ slices3d(vol1, vol2=NULL, zlim1, zlim2, col1, col2, main,
   library(AnalyzeFMRI)
   temp<-f.read.analyze.volume("standard.img")
   z<-f.read.analyze.volume("z-map.img")
-  slices3d(vol1=temp, vol2=z[,,,1], zlim2=c(2,Inf),col2=heat.colors(20),
+  slices3d(vol1=temp, vol2=z[,,,1], rlim2=c(2,Inf),col2=heat.colors(20),
           main="Regions above threshold values.")
   }
 }

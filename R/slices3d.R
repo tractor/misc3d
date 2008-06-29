@@ -15,7 +15,7 @@ vslice <- function(vol, which, k, tpt = 1) {
                z = vol[,,k])
 }
 
-slices3d <- function(vol1, vol2=NULL, zlim1=c(-Inf, Inf), zlim2=NULL,
+slices3d <- function(vol1, vol2=NULL, rlim1=c(-Inf, Inf), rlim2=NULL,
                      col1=gray.colors(512), col2=NULL,
                      main="Three Planes View", scale = 0.8,
                      alpha=1, cross = TRUE){
@@ -29,7 +29,7 @@ slices3d <- function(vol1, vol2=NULL, zlim1=c(-Inf, Inf), zlim2=NULL,
             opar = par(mar=c(0,0,0,0))
             on.exit(par(opar))
             if(!(is.array(col)))
-                image(vslice(vol, which, bb[i],bb[4]), col=col, zlim = zlim1)
+                image(vslice(vol, which, bb[i],bb[4]), col=col, zlim = rlim1)
             else{
                 v <- switch(which,
                            x = matrix(1:(d[2]*d[3]), nrow=d[2]),
@@ -77,14 +77,14 @@ slices3d <- function(vol1, vol2=NULL, zlim1=c(-Inf, Inf), zlim2=NULL,
           }
         })
     }
-    overlay <- function(vol1, vol2, zlim1, zlim2, col1, col2, alpha){
-        choose1 <- vol1 <= zlim1[2] & vol1 >= zlim1[1]
+    overlay <- function(vol1, vol2, rlim1, rlim2, col1, col2, alpha){
+        choose1 <- vol1 <= rlim1[2] & vol1 >= rlim1[1]
         vol1 <- floor((length(col1) - .01) *
                     (vol1 - min(vol1))/(max(vol1) - min(vol1)) + 1)
         vol1c <- col1[vol1]
         vol1c[!choose1] <- "white"
 
-        choose2 <- vol2 <= zlim2[2] & vol2 >= zlim2[1]
+        choose2 <- vol2 <= rlim2[2] & vol2 >= rlim2[1]
         vol2 <- floor((length(col2) - .01) *
                     (vol2 - min(vol2))/(max(vol2) - min(vol2)) + 1)
         vol2c <- col2[vol2]
@@ -96,8 +96,8 @@ slices3d <- function(vol1, vol2=NULL, zlim1=c(-Inf, Inf), zlim2=NULL,
 
     if (! require(tkrplot)) stop("tkrplot is required.");
 
-    if(missing(zlim1))
-        zlim1 <- range(vol1,na.rm = TRUE)
+    if(missing(rlim1))
+        rlim1 <- range(vol1,na.rm = TRUE)
     if(is.null(vol2)){
         vol <- vol1
         col <- col1
@@ -105,9 +105,9 @@ slices3d <- function(vol1, vol2=NULL, zlim1=c(-Inf, Inf), zlim2=NULL,
     else{
         if(!all(dim(vol1 == vol2)))
             stop("two layers have to have the same dimensions")
-        if(missing(zlim2))
-            zlim2 <- range(vol2,na.rm = TRUE)
-        col <- overlay(vol1, vol2, zlim1, zlim2, col1, col2, alpha)
+        if(missing(rlim2))
+            rlim2 <- range(vol2,na.rm = TRUE)
+        col <- overlay(vol1, vol2, rlim1, rlim2, col1, col2, alpha)
         vol <- array(0, dim=dim(vol1))
     }
 
