@@ -117,15 +117,15 @@ slices3d <- function(vol1, vol2=NULL, rlim1=c(-Inf, Inf), rlim2=NULL,
     tktitle(tt) <- main
     bb <- c(round(d[1:3]) / 2, 1)
     bbv <- lapply(bb, tclVar)
-    s <- lapply(1:3, mkscale)
-    img <- lapply(c("x", "y", "z"), mkimg)
+    s <- lapply(c(2,1,3), mkscale)
+    img <- lapply(c("y", "x", "z"), mkimg)
     tkgrid(img[[1]], img[[2]])
     tkgrid(s[[1]],s[[2]])
     tkgrid(img[[3]])
     if (length(d) == 4 && d[4] > 1)
         tkgrid(s[[3]], mkscale(4))
     else tkgrid(s[[3]])
-    lapply(c("x", "y", "z"), move)
+    lapply(c("y", "x", "z"), move)
 
     environment()
 }
