@@ -37,7 +37,7 @@ slices3d(vol1, vol2=NULL, rlim1, rlim2, col1, col2, main,
 	If \code{layout} is counterclockwise, then the first quadrant
 	shows images from the y-z planes and the second quadrant the x-z
 	planes.	Otherwise, the images in the first and the second quadrant
-	are switched. The forth	quadrant is left for the slider used to
+	are switched. The fourth quadrant is left for the slider used to
 	select the value of the fourth index (if any) of input array(s).}
 }
 \details{
