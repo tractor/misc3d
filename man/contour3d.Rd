@@ -9,7 +9,7 @@
    contour3d(f, level, x, y, z, mask = NULL, color = "white", color2 = NA,
              alpha = 1, fill = TRUE, col.mesh = if (fill) NA else color,
              material = "default", smooth = 0,
-             add = FALSE, draw = TRUE, engine = "rgl", ...)
+             add = FALSE, draw = TRUE, engine = "rgl", separate=FALSE, ...)
 }
 \arguments{
   \item{f}{a function of 3 arguments or a three dimensional array.}
@@ -49,6 +49,13 @@
     return contour triangles.}
   \item{engine}{character; currently "rgl", "standard", "grid" or "none";
     for "none" the computed triangles are returned.}
+  \item{separate}{logical and one for each \code{level}; if it is
+    \code{TRUE}, and either the \code{engine} is "none" or \code{draw}
+    is not true, the triangles from the corresponding \code{level}
+    are separated into disconnected chunks, namely that triangles from
+    different chunks have no vertex in common. The default is
+    \code{FALSE} for each level.
+  }
   \item{...}{additional rendering arguments, e.g. material and texture
     properties for the "rgl" engine.  See documentation for
     \code{\link[misc3d]{drawScene}} and \code{\link[misc3d]{drawScene.rgl}}}
