@@ -576,9 +576,19 @@ triangleNeighborEdges <- function(tn) {
    do.call(rbind, lapply(1:length(tn), edges))
 }
 
-seperateTriangles <- function(contour3dObj){
+## separate triangles into disconnected chunks
+separateTriangles <- function(contour3dObj){
     tn <- triangleNeighbors(contour3dObj)
     edges <- triangleNeighborEdges(tn)
     edges <- edges[edges[,1] < edges[,2],]
-    GetPatches(length(tn), edges)
+    p <- GetPatches(length(tn), edges)
+    newContour3dObj <- vector("list", length(p))
+    for(i in 1:length(newContour3dObj)){
+        newContour3dObj[[i]] <- contour3dObj
+        newContour3dObj[[i]]$v1 <- contour3dObj$v1[p[[i]],]
+        newContour3dObj[[i]]$v2 <- contour3dObj$v2[p[[i]],]
+        newContour3dObj[[i]]$v3 <- contour3dObj$v3[p[[i]],]
+    }
+    newContour3dObj
+
 }
