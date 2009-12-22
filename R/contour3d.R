@@ -676,27 +676,27 @@ contour3d <- function(f, level,
         if (! any(separate))
             scene
         else{
-            if (length(separate) < length(level))
-                separate <- c(separate, rep(FALSE, length(level)-length(separate)))
             if (length(level)==1){
                 newScene <- separateTriangles(scene)
                 cat(paste("Triangles are separated into ", length(newScene),
                           " chunks.", "\n", sep=""))
             }
+            else{
+                if (length(separate) < length(level))
+                    separate <- c(separate, rep(FALSE, length(level)-length(separate)))
 
-            else
                 newScene <- NULL
                 for (i in 1:length(level)){
-                if (separate[i]){
-                    new <- separateTriangles(scene[[i]])
-                    newScene <- c(newScene, new)
-                    cat(paste("Triangles from level ", level[i],
-                              " are separated into ", length(new), " chunks.",
-                              "\n", sep=""))
+                    if (separate[i]){
+                        new <- separateTriangles(scene[[i]])
+                        newScene <- c(newScene, new)
+                        cat(paste("Triangles from level ", level[i],
+                                  " are separated into ", length(new), " chunks.",
+                                  "\n", sep=""))
                 }
-                else
-                    newScene <- c(newScene, list(scene[[i]]))
-
+                    else
+                        newScene <- c(newScene, list(scene[[i]]))
+                }
             }
             newScene
         }

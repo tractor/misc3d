@@ -172,6 +172,20 @@
             mask = m, engine="standard",
             scale = FALSE, screen=list(z = 60, x = -120))
   }
+
+  #Example 4: Separate the triangles from the contours of
+  #           mixture of three tri-variate normal densities
+  nmix3 <- function(x, y, z, m, s) {
+      0.3*dnorm(x, -m, s) * dnorm(y, -m, s) * dnorm(z, -m, s) +
+      0.3*dnorm(x, -2*m, s) * dnorm(y, -2*m, s) * dnorm(z, -2*m, s) +
+      0.4*dnorm(x, -3*m, s) * dnorm(y, -3 * m, s) * dnorm(z, -3*m, s) }
+  f <- function(x,y,z) nmix3(x,y,z,0.5,.1)
+  n <- 20
+  x <- y <- z <- seq(-2, 2, len=n)
+  contour3dObj <- contour3d(f, 0.35, x, y, z, draw=FALSE, separate=TRUE)
+  for(i in 1:length(contour3dObj))
+      contour3dObj[[i]]$color <- rainbow(length(contour3dObj))[i]
+  drawScene.rgl(contour3dObj)
 }
 \keyword{hplot}
 
