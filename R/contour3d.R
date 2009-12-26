@@ -648,11 +648,13 @@ contour3d <- function(f, level,
 
         maxvol <- max(vol)
         minvol <- min(vol)
-        con <- which(level > maxvol | level < minvol)
+        cat("The range of 'f' is between ", round(minvol,2), " and ", round(maxvol,2), ".\n", sep="")
+        con <- which(! level <= maxvol & level >= minvol)
+        #browser()
         if (length(con) == length(level))
             stop("The level has to be within the range of f")
         else if (length(con) > 0){
-            warning(paste("The level ", level[con], " outside the range of f has been removed from the level list", sep=""))
+            warning("The level(s) outside the range of 'f' has been removed from the level list. \n")
             level <- level[-con]
             if (is.list(mask)) mask <- mask[-con]
             if (length(color) > 1) color <- color[-con]
@@ -678,8 +680,8 @@ contour3d <- function(f, level,
         else{
             if (length(level)==1){
                 newScene <- separateTriangles(scene)
-                cat(paste("Triangles are separated into ", length(newScene),
-                          " chunks.", "\n", sep=""))
+                cat("Triangles are separated into ", length(newScene),
+                          " chunks.", "\n", sep="")
             }
             else{
                 if (length(separate) < length(level))
@@ -690,9 +692,9 @@ contour3d <- function(f, level,
                     if (separate[i]){
                         new <- separateTriangles(scene[[i]])
                         newScene <- c(newScene, new)
-                        cat(paste("Triangles from level ", level[i],
+                        cat("Triangles from level ", level[i],
                                   " are separated into ", length(new), " chunks.",
-                                  "\n", sep=""))
+                                  "\n", sep="")
                 }
                     else
                         newScene <- c(newScene, list(scene[[i]]))
