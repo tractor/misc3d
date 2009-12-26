@@ -650,7 +650,6 @@ contour3d <- function(f, level,
         minvol <- min(vol)
         cat("The range of 'f' is between ", round(minvol,2), " and ", round(maxvol,2), ".\n", sep="")
         con <- which(! level <= maxvol & level >= minvol)
-        #browser()
         if (length(con) == length(level))
             stop("The level has to be within the range of f")
         else if (length(con) > 0){
