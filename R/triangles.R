@@ -592,3 +592,22 @@ separateTriangles <- function(contour3dObj){
     newContour3dObj
 
 }
+
+## Write out a triangle mesh scene as an OFF format file.  This only
+## outputs the geometry; color and transparency are ignored for now.
+## The format supports adding three or four rgb values to each face
+## line, but MeshLab seems to ignore these.
+saveTrianglesAsOFF <- function(scene, filename = "scene.OFF") {
+    scene <- misc3d:::colorScene(scene)
+    triangles <- misc3d:::canonicalizeAndMergeScene(scene, "color", "color2",
+                                                    "alpha", "col.mesh",
+                                                    "fill", "smooth")
+    ve <- misc3d:::t2ve(triangles)
+    f <- file(filename, open = "w")
+    on.exit(close(f))
+    write("OFF", f)
+    write(c(ncol(ve$vb), ncol(ve$ib), 3 * ncol(ve$ib)), f, 3)
+    write(ve$vb, f, 3)
+    write(rbind(3, ve$ib - 1), f, 4)
+    invisible(NULL)
+}
