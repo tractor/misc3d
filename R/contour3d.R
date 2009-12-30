@@ -648,12 +648,12 @@ contour3d <- function(f, level,
 
         maxvol <- max(vol)
         minvol <- min(vol)
-        cat("The range of 'f' is between ", round(minvol,2), " and ", round(maxvol,2), ".\n", sep="")
+        #cat("The range of 'f' is between ", round(minvol,2), " and ", round(maxvol,2), ".\n", sep="")
         con <- which(! level <= maxvol & level >= minvol)
         if (length(con) == length(level))
-            stop("The level has to be within the range of f")
+            stop(paste("The 'level' has to be within the range of 'f' (between ", round(minvol, 2), " and ", round(maxvol, 2),").\n", sep=""))
         else if (length(con) > 0){
-            warning("The level(s) outside the range of 'f' has been removed from the level list. \n")
+            warning(paste("The 'level' outside the range of 'f' (between ", round(minvol, 2), " and ", round(maxvol, 2), ") has been removed from the level list. \n", sep=""))
             level <- level[-con]
             if (is.list(mask)) mask <- mask[-con]
             if (length(color) > 1) color <- color[-con]
