@@ -614,20 +614,24 @@ saveTrianglesAsOFF <- function(scene, filename = "scene.OFF") {
 ## write an IDTF program for recreating a triangular mesh
 ## scene. 
 
-saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
-    scene <- misc3d:::colorScene(scene)
-    triangles <- misc3d:::canonicalizeAndMergeScene(scene, "color",
-                                                    "color2", "alpha",
-                                                    "col.mesh", "fill",
-                                                    "smooth")
-    ve <- misc3d:::t2ve(triangles)
+saveTrianglesAsIDTF <- function(filename = "scene.idtf") {
+   # scene <- misc3d:::colorScene(scene)
+   # triangles <- misc3d:::canonicalizeAndMergeScene(scene, "color",
+   #                                                 "color2", "alpha",
+   #                                                 "col.mesh", "fill",
+   #                                                 "smooth")
+   # ve <- misc3d:::t2ve(triangles)
+    
+      
     f <- file(filename, open = "w")
     on.exit(close(f))
 
-    ## write out header information and vertices
+    ## write out header information 
     cat("FILE_FORMAT \"IDTF\"\n",
-        "FORMAT_VERSION 100\n\n",
-        "NODE \"MODEL\" {\n",
+        "FORMAT_VERSION 100\n\n",sep="", file=f)
+
+    ## write out node "model"
+    cat("NODE \"MODEL\" {\n",
             "\tNODE_NAME \"Mesh\"\n",
             "\tPARENT_LIST {\n",
                 "\t\tPARENT_COUNT 1\n",
@@ -642,7 +646,102 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
                 "\t\t}\n",
             "\t}\n",
             "\tRESOURCE_NAME \"MyMesh\"\n",
-        "}\n",
+        "}\n\n",
         sep="", file=f)
+
+    ## write out resource_list "model"
+    cat("RESOURCE_LIST \"MODEL\" {\n",
+         "\tRESOURCE_COUNT 1\n",
+         "\tRESOURCE 0 {\n",
+              "\t\tRESOURCE_NAME \"MyMesh\"\n",
+              "\t\tMODEL_TYPE \"MESH\"\n",
+              "\t\tMESH {\n", sep="", file=f)
+    cat(sprintf("\t\t\tFACE_COUNT %d\n", nf), file=f)
+    cat(sprintf("\t\t\tMODEL_POSITION_COUNT %d\n", nv), file=f)
+    cat("\t\t\tMODEL_NORMAL_COUNT 0\n", sep="", file=f)
+    cat(sprintf("\t\t\tMODEL_DIFFUSE_COLOR_COUNT %d\n", nf), file=f)
+    cat("\t\t\tMODEL_SPECULAR_COLOR_COUNT 0\n",
+        "\t\t\tMODEL_TEXTURE_COORD_COUNT 0\n",
+        "\t\t\tMODEL_BONE_COUNT 0\n",
+        "\t\t\tMODEL_SHADING_COUNT 1\n",
+        "\t\t\tMODEL_SHADING_DESCRIPTION_LIST {\n",
+        "\t\t\t\tSHADING_DESCRIPTION 0 {\n",
+        "\t\t\t\t\tTEXTURE_LAYER_COUNT 0\n",
+        "\t\t\t\t\tSHADER_ID 0\n",
+        "\t\t\t\t}\n",
+        "\t\t\t}\n", sep="", file=f)
+    #face position
+    cat("\t\t\tMESH_FACE_POSITION_LIST {\n", sep="", file=f)
+    for(i in 1:nf)
+        cat(sprintf("\t\t\t\t%d  %d  %d \n", v1[i]-1, v2[i]-1, v3[i]-1), file=f)
+    cat("\t\t\t}\n", sep="", file=f)
+    #shading list---not sure what that is use 0 for all
+    cat("\t\t\tMESH_FACE_SHADING_LIST {\n", sep="", file=f)
+    for(i in 1:nf)
+        cat(sprintf("\t\t\t\t%d\n", 0), file=f)
+    cat("\t\t\t}\n", sep="", file=f)
+    #face diffuse color
+    cat("\t\t\tMESH_FACE_DIFFUSE_COLOR_LIST {\n", sep="", file=f)
+    for(i in 1:nf)
+        cat(sprintf("\t\t\t\t%d %d %d\n", i-1, i-1, i-1), file=f)
+    cat("\t\t\t}\n", sep="", file=f)
+    #model position
+    cat("\t\t\tMODEL_POSITION_LIST {\n", sep="", file=f)
+    for(i in 1:nv)
+        cat(sprintf("\t\t\t\t%f  %f  %f \n", x[i], y[i], z[i]), file=f)
+    cat("\t\t\t}\n", sep="", file=f)
+    #diffuse color
+    cat("\t\t\tMODEL_DIFFUSE_COLOR_LIST {\n", sep="", file=f)
+    for(i in 1:nf)
+        cat(sprintf("\t\t\t\t%f  %f  %f \n", r[i], g[i], b[i]), file=f)
+    cat("\t\t\t}\n", sep="", file=f)
+    #
+    cat("\t\t}\n", sep="", file=f)
+    cat("\t}\n", sep="", file=f)
+    cat("}\n\n", sep="", file=f)
+
+
+    ## write out resource_list "shader"
+    cat("RESOURCE_LIST \"SHADER\" {\n",
+         "\tRESOURCE_COUNT 1\n",
+         "\tRESOURCE 0 {\n",
+              "\t\tRESOURCE_NAME \"Box010\"\n",
+              "\t\tATTRIBUTE_USE_VERTEX_COLOR \"TRUE\"\n",
+              "\t\tSHADER_MATERIAL_NAME \"Box010\"\n",
+              "\t\tSHADER_ACTIVE_TEXTURE_COUNT 0\n",
+         "\t}\n",
+    "}\n\n", sep="", file=f)
+
+    ## write out resource_list "material"
+    ## need to be more flexible
+    cat("RESOURCE_LIST \"MATERIAL\" {\n",
+         "\tRESOURCE_COUNT 1\n",
+         "\tRESOURCE 0 {\n",
+              "\t\tRESOURCE_NAME \"Box010\"\n",
+              "\t\tMATERIAL_AMBIENT 0.0 0.0 0.0\n",
+              "\t\tMATERIAL_DIFFUSE 1.0 1.0 1.0\n",
+              "\t\tMATERIAL_SPECULAR 0.0 0.0 0.0\n",
+              "\t\tMATERIAL_EMISSIVE 1.0 1.0 1.0\n",
+              "\t\tMATERIAL_REFLECTIVITY 0.000000\n",
+              "\t\tMATERIAL_OPACITY 1.000000\n",
+         "\t}\n",
+    "}\n\n", sep="", file=f)
+
+    ## write out modifier "shading"
+    cat("MODIFIER \"SHADING\" {\n",
+        "\tMODIFIER_NAME \"Mesh\"\n",
+         "\tPARAMETERS {\n",
+              "\t\tSHADER_LIST_COUNT 1\n",
+              "\t\tSHADER_LIST_LIST {\n",
+                   "\t\t\tSHADER_LIST 0 {\n",
+                        "\t\t\t\tSHADER_COUNT 1\n",
+                        "\t\t\t\tSHADER_NAME_LIST {\n",
+                             "\t\t\t\t\tSHADER 0 NAME: \"Box010\"\n",
+                        "\t\t\t\t}\n",
+                   "\t\t\t}\n",
+              "\t\t}\n",
+         "\t}\n",
+    "}\n\n", sep="", file=f)
+
     invisible(NULL)
 }
