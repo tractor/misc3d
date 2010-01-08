@@ -614,15 +614,30 @@ saveTrianglesAsOFF <- function(scene, filename = "scene.OFF") {
 ## write an IDTF program for recreating a triangular mesh
 ## scene. 
 
-saveTrianglesAsIDTF <- function(filename = "scene.idtf") {
-   # scene <- misc3d:::colorScene(scene)
-   # triangles <- misc3d:::canonicalizeAndMergeScene(scene, "color",
-   #                                                 "color2", "alpha",
-   #                                                 "col.mesh", "fill",
-   #                                                 "smooth")
-   # ve <- misc3d:::t2ve(triangles)
+saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
+    scene <- misc3d:::colorScene(scene)
+    triangles <- misc3d:::canonicalizeAndMergeScene(scene, "color",
+                                                    "color2", "alpha",
+                                                    "col.mesh", "fill",
+                                                    "smooth")
+    ve <- misc3d:::t2ve(triangles)
+    nv <- ncol(ve$vb)
+    x <- ve$vb[1,]
+    y <- ve$vb[2,]
+    z <- ve$vb[3,]
+    nf <- ncol(ve$ib)
+    v1 <- ve$ib[1,]
+    v2 <- ve$ib[2,]
+    v3 <- ve$ib[3,]
+    cols <- col2rgb(triangles$color)
+    #not sure how to use alpha
+    alpha <- triangles$alpha
+    r <- cols[1,]
+    g <- cols[2,]
+    b <- cols[3,]
+
+
     
-      
     f <- file(filename, open = "w")
     on.exit(close(f))
 
@@ -683,7 +698,7 @@ saveTrianglesAsIDTF <- function(filename = "scene.idtf") {
     #face diffuse color
     cat("\t\t\tMESH_FACE_DIFFUSE_COLOR_LIST {\n", sep="", file=f)
     for(i in 1:nf)
-        cat(sprintf("\t\t\t\t%d %d %d\n", i-1, i-1, i-1), file=f)
+        cat(sprintf("\t\t\t\t%d \n", i-1), file=f)
     cat("\t\t\t}\n", sep="", file=f)
     #model position
     cat("\t\t\tMODEL_POSITION_LIST {\n", sep="", file=f)
