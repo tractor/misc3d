@@ -669,7 +669,7 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
         cat("\tPARENT_LIST {\n",
             "\t\tPARENT_COUNT 1\n",
             "\t\tPARENT 0 {\n",
-            "\t\t\tPARENT_NAME \"<NULL>\"\n",
+            "\t\t\tPARENT_NAME \"Mesh_Group\"\n",
             "\t\t\tPARENT_TM {\n",
             "\t\t\t\t1.000000 0.000000 0.000000 0.000000\n",
             "\t\t\t\t0.000000 1.000000 0.000000 0.000000\n",
@@ -706,7 +706,7 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
 
         cat(sprintf("\t\t\tFACE_COUNT %d\n", nf), file=f)
         cat(sprintf("\t\t\tMODEL_POSITION_COUNT %d\n", nv), file=f)
-        cat(sprintf("\t\t\tMODEL_NORMAL_COUNT %d\n", nf*3), file=f)
+        cat(sprintf("\t\t\tMODEL_NORMAL_COUNT %d\n", nv), file=f)
         cat("\t\t\tMODEL_DIFFUSE_COLOR_COUNT \n",
             "\t\t\tMODEL_SPECULAR_COLOR_COUNT 0\n",
             "\t\t\tMODEL_TEXTURE_COORD_COUNT 0\n",
@@ -773,7 +773,7 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
         rgb <- col2rgb(scene[[s]]$color)/255
         cat(sprintf("\t\tMATERIAL_DIFFUSE %f %f %f\n", rgb[1], rgb[2], rgb[3]), file=f)
         cat("\t\tMATERIAL_SPECULAR 0.0 0.0 0.0\n",
-            "\t\tMATERIAL_EMISSIVE 1.0 1.0 1.0\n",
+            "\t\tMATERIAL_EMISSIVE 0.0 0.0 0.0\n",
             "\t\tMATERIAL_REFLECTIVITY 0.000000\n", sep="", file=f)
         cat(sprintf("\t\tMATERIAL_OPACITY %f\n", scene[[s]]$alpha), file=f)
         cat("\t}\n", sep="", file=f)
