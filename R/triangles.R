@@ -691,7 +691,7 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
         cat("\t\tMODEL_TYPE \"MESH\"\n",
             "\t\tMESH {\n", sep="", file=f)
 
-        ve <- misc3d:::t2ve(scene[[s]])
+        ve <- t2ve(scene[[s]])
         nv <- ncol(ve$vb)
         x <- ve$vb[1,]
         y <- ve$vb[2,]
@@ -700,10 +700,13 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
         v1 <- ve$ib[1,]
         v2 <- ve$ib[2,]
         v3 <- ve$ib[3,]
+        N <- triangleNormals(scene[[s]])
+        vt <- vertexTriangles(ve)
+        VN <- vertexNormals(vt, N)
 
         cat(sprintf("\t\t\tFACE_COUNT %d\n", nf), file=f)
         cat(sprintf("\t\t\tMODEL_POSITION_COUNT %d\n", nv), file=f)
-        cat("\t\t\tMODEL_NORMAL_COUNT 0\n", sep="", file=f)
+        cat(sprintf("\t\t\tMODEL_NORMAL_COUNT %d\n", nf*3), file=f)
         cat("\t\t\tMODEL_DIFFUSE_COLOR_COUNT \n",
             "\t\t\tMODEL_SPECULAR_COLOR_COUNT 0\n",
             "\t\t\tMODEL_TEXTURE_COORD_COUNT 0\n",
@@ -720,6 +723,11 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
         for(i in 1:nf)
             cat(sprintf("\t\t\t\t%d  %d  %d \n", v1[i]-1, v2[i]-1, v3[i]-1), file=f)
         cat("\t\t\t}\n", sep="", file=f)
+        #face normal
+        cat("\t\t\tMESH_FACE_NORMAL_LIST {\n", sep="", file=f)
+        for(i in 1:nf)
+            cat(sprintf("\t\t\t\t%d  %d  %d \n", v1[i]-1, v2[i]-1, v3[i]-1), file=f)
+        cat("\t\t\t}\n", sep="", file=f)
         #shading list---not sure what that is use 0 for all
         cat("\t\t\tMESH_FACE_SHADING_LIST {\n", sep="", file=f)
         for(i in 1:nf)
@@ -729,6 +737,11 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
         cat("\t\t\tMODEL_POSITION_LIST {\n", sep="", file=f)
         for(i in 1:nv)
             cat(sprintf("\t\t\t\t%f  %f  %f \n", x[i], y[i], z[i]), file=f)
+        cat("\t\t\t}\n", sep="", file=f)
+        #model normal
+        cat("\t\t\tMODEL_NORMAL_LIST {\n", sep="", file=f)
+        for(i in 1:nv)
+            cat(sprintf("\t\t\t\t%f  %f  %f \n", VN[i,1], VN[i,2], VN[i,3]), file=f)
         cat("\t\t\t}\n", sep="", file=f)
         #
         cat("\t\t}\n", sep="", file=f)
