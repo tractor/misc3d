@@ -260,7 +260,7 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
     invisible(NULL)
 }
 
-exportScene <- function(scene, filename="scene", format=c("OFF", "IDTF", "ASY")){
+exportScene <- function(scene, filename, format=c("OFF", "IDTF", "ASY")){
     format <- match.arg(format)
     switch(format,
            OFF = saveTrianglesAsOFF(scene, filename = paste(filename, ".off", sep="")),
