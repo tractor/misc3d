@@ -252,7 +252,7 @@ saveTrianglesAsIDTF <- function(scene, filename = "scene.idtf") {
         cat(sprintf("\t\t\t\t\tSHADER 0 NAME: \"Box0%d0\"\n", s), file=f)
         cat("\t\t\t\t}\n",
             "\t\t\t}\n",
-              "\t\t}\n",
+            "\t\t}\n",
             "\t}\n",
             "}\n\n", sep="", file=f)
     }
