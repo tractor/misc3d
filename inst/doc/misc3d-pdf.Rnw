@@ -151,23 +151,23 @@ asy -inlineimage -tex pdflatex volcano.asy
 \end{verbatim}
 then produces a PRC file that can be included in a \LaTeX\ document.
 The result is shown in Figure \ref{fig:volcano-prc}
-\begin{figure}[h]
-  \centering
-  \includemovie[3Dlights=CAD,
-                poster,
-                text=(vol.prc),
-                label=vol.prc,
-                toolbar,
-                3Daac=22.15,
-                3Dcoo=0 0 -22.65,
-                3Dc2c=0.74 0.52 -0.43,
-                3Droll=85,
+%\begin{figure}[h]
+%  \centering
+%  \includemovie[3Dlights=CAD,
+%                poster,
+%                text=(vol.prc),
+%                label=vol.prc,
+%                toolbar,
+%                3Daac=22.15,
+%                3Dcoo=0 0 -22.65,
+%                3Dc2c=0.74 0.52 -0.43,
+%                3Droll=85,
                 % 3Dgetview,
-                3Droo=80]{4in}{4in}{volcano.prc}
-  \caption{Color version of the volcano surface}
-  \label{fig:volcano-prc}
+%                3Droo=80]{4in}{4in}{volcano.prc}
+%  \caption{Color version of the volcano surface}
+%  \label{fig:volcano-prc}
   % \movieref[3Dgetview]{vol.prc}{Click here!}
-\end{figure}
+%\end{figure}
 The code produced seems to require a fairly recent version of
 Asymptote; I used version 1.86.  Embedding in \LaTeX\ also requires a
 PCR-aware version of the \texttt{movie15} package; such a version is
