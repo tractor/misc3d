@@ -28,8 +28,8 @@ versions of 3D contour plots and other triangular mesh scenes produced
 by the \texttt{misc3d} R package. There are two file formats supported
 called U3D and PRC.  Both are complex binary formats, so it is useful
 to find simple textual formats for representing 3D objects along with
-software for converting these to U3D or PRC.  So far I have found two
-approaches, one that captures only the geometry and one that captures
+software for converting these to U3D or PRC.  So far we have found three
+approaches, one that captures only the geometry and the other two that captures
 geometry along with color and transparency.
 
 \section{Geometry-only images using MeshLab and U3D.}
@@ -124,7 +124,7 @@ vtri <- surfaceTriangles(x, y, z, color="green3")
 saveTrianglesAsOFF(vtri,"volcano.OFF")
 @ 
 
-\section{Images including color and transparency using Asymptote}
+\section{Images including color and transparency using IDTF or Asymptote}
 \href{http://asymptote.sourceforge.net/}{Asymptote} is a powerful
 vector graphics language for 2D and 3D graphics. It is inspired by
 MetaPost and generalizes MetaPost path construction algorithms to

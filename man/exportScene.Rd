@@ -20,44 +20,32 @@ exportScene(scene, filename, format=c("OFF", "IDTF", "ASY"))
   Textual files representing triangular mesh scenes.
 }
 \details{
-  \code{exportScene} renders a scene consisting of one or more triangle
-  mesh objects using standard or grid graphics.  Object-specific
-  rendering features such as smoothing and material are controlled by
-  setting in the objects.  Arguments to \code{exportScene} control global
-  factors such as viewer and light position.
-
-  \code{exportScene.rgl} renders the scene in an rgl window.
-
-  If \code{add=TRUE} in standard or grid graphics then coordinates are
-  not further scaled after the transformations implied by \code{R.mat},
-  and \code{distance} are applied.  For the grid engine exporting occurs
-  in the current viewport.
+  \code{exportScene} writes out scenes to textual files,
+  which can be used for other purposes, for example the
+  generation of U3d and PRC files for interactive 3D visulization in
+  a PDF. See the accompanied vignette for more details.
 }
-\note{
-  The "rgl" engine now uses the standard rgl coordinates instead of
-  negating \code{y} and swapping \code{y} and \code{z}. If you need to
-  reproduce the previous behavior you can use
-  \code{options(old.misc3d.orientation=TRUE)}.
-
-  Transparency only works properly in the "rgl" engine.  For standard or
-  grid graphics on devices that support transparency using alpha levels
-  less than 1 does work but the triangle borders show as a less
-  transparent mesh.
-}
-\seealso{\code{\link[rgl]{rgl.material}}}
 \examples{
-  vtri <- local({
-      z <- 2 * volcano
-      x <- 10 * (1:nrow(z))
-      y <- 10 * (1:ncol(z))
-      surfaceTriangles(x, y, z, color="green3")
-  })
-  exportScene(vtri, scale = FALSE)
-  exportScene(vtri, screen=list(x=40, y=-40, z=-135), scale = FALSE)
-  exportScene(vtri, screen=list(x=40, y=-40, z=-135), scale = FALSE,
-            perspective = TRUE)
-  exportScene(vtri, screen=list(x=40, y=-40, z=-135), scale = FALSE,
-            perspective = TRUE, depth = 0.4)
+  nmix3 <- function(x, y, z, m, s) {
+      0.4 * dnorm(x, m, s) * dnorm(y, m, s) * dnorm(z, m, s) +
+      0.3 * dnorm(x, -m, s) * dnorm(y, -m, s) * dnorm(z, -m, s) +
+      0.3 * dnorm(x, m, s) * dnorm(y, -1.5 * m, s) * dnorm(z, m, s)
+  }
+ 
+  f <- function(x,y,z) nmix3(x,y,z,.5,.5)
+ 
+  gs1 <- function(n = 40, k = 5, cmap = heat.colors, ...) {
+      th <- seq(0.05, 0.2, len = k)
+      col <- rev(cmap(length(th)))
+      x <- seq(-2, 2, len=n)
+      m <- function(x,y,z) x > .25 | y < -.3
+      contour3d(f,th,x,x,x,color=col, mask = m, engine = "none",
+               scale = FALSE, ...)
+  }
+ 
+  conts <- gs1(40, 5, screen=list(z = 130, x = -80),
+               color2 = "lightgray", cmap=rainbow)
+  exportScene(conts, "nmix", "OFF")
 }
 \keyword{hplot}
 
