@@ -1,0 +1,276 @@
+\documentclass{article}
+
+\usepackage{fullpage}
+\usepackage[3D]{movie15}
+\usepackage[colorlinks=true]{hyperref} 
+\usepackage{verbatim}
+\graphicspath{{figures/}}
+
+\title{Embedding some \texttt{misc3d} figures in a PDF as interactive
+  3D objects}
+\author{Luke Tierney\\Statistics and Actuarial Science\\University of Iowa\and
+        Dai Feng\\Biometrics Research\\Merck & Co., Inc.}
+
+\begin{document}
+%\VignetteIndexEntry{Embedding \texttt{misc3d} figures in PDF}
+%\VignetteKeywords{pdf, interactive 3D, U3D, PRC}
+%\VignettePackage{misc3d}
+
+\maketitle
+<<echo=false,results=hide>>=
+library(misc3d)
+@
+
+Recent versions of PDF and of the Acrobat reader support inclusion of
+3D formats for representing interactive 3D models.  This note
+describes how this support can be used to include interactive
+versions of 3D contour plots and other triangular mesh scenes produced
+by the \texttt{misc3d} R package. There are two file formats supported
+called U3D and PRC.  Both are complex binary formats, so it is useful
+to find simple textual formats for representing 3D objects along with
+software for converting these to U3D or PRC.  So far I have found two
+approaches, one that captures only the geometry and one that captures
+geometry along with color and transparency.
+
+\section{Geometry-only images using MeshLab and U3D.}
+\href{http://meshlab.sourceforge.net}{MeshLab} is an open source
+system for the processing and editing of unstructured 3D triangular
+meshes.  It can read and write several formats representing such
+meshes.  An easy format to write that MeshLab can read is the
+\href{http://people.sc.fsu.edu/~burkardt/data/off/off.html}{OFF}
+format.  A function to write out \texttt{misc3d} scenes in OFF format
+is shown in Appendix \ref{app:off.R}.  This function does not attempt
+to write out color, transparency or material properties.  Color and
+transparency are supported in OFF format but MeshLab doesn't seem to
+write them properly into the U3D (or read them from OFF for that
+matter).  The OFF file produced by this function can then be read in
+by MeshLab and then exported in U3D format.  The \texttt{movie15}
+\LaTeX\ package can then be used to include the image in a PDF
+document created with \texttt{pdflatex}.
+
+Figures \ref{fig:nmix-u3d} and \ref{fig:volcano-u3d} show two
+images created by this approach, one shows nested contours of the
+density a mixture of three-dimensional normals, the other shows the
+volcano surface from the R distribution.
+\begin{figure}[h]
+  \centering
+  \begin{tabular}{cc}
+    \includemovie[poster,
+                  toolbar, %same as `controls'
+                  label=nmix.u3d,
+                  text=(nmix.u3d),
+                  3Droo=10, 
+                  3Dc2c=0.65 -0.225 0.725,
+                  3Droll=-64.5,
+                  3Dviews=nmix.vws,
+                  % 3Dgetview,
+                  3Dlights=CAD,
+                  ]{4in}{4in}{nmix.u3d} &
+  \end{tabular}
+  \caption{Embedded U3D image showing nested contours of the density
+    of a mixture of three tri-variate normal distributions.}.
+  \label{fig:nmix-u3d}
+  % \movieref[3Dgetview]{nmix.u3d}{Click here!}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \begin{tabular}{cc}
+    \includemovie[poster,
+                  toolbar, %same as `controls'
+                  label=vol.u3d,
+                  text=(nmix.u3d),
+                  3Droo=2000,
+                  3Dcoo=-440 360 260, 
+                  3Dc2c=-0.55 0.70 -0.465,
+                  3Droll=-68,
+                  % 3Dgetview,
+                  3Dlights=CAD,
+                  ]{4in}{4in}{volcano.u3d}
+  \end{tabular}
+  \caption{Embedded U3D image of the R volcano surface data.}.
+  \label{fig:volcano-u3d}
+  % \movieref[3Dgetview]{vol.u3d}{Click here!}
+\end{figure}
+The normal mixture contours were created with a variant of code from
+the \texttt{contour3d} help page:
+<<eval=false>>=
+nmix3 <- function(x, y, z, m, s) {
+    0.4 * dnorm(x, m, s) * dnorm(y, m, s) * dnorm(z, m, s) +
+    0.3 * dnorm(x, -m, s) * dnorm(y, -m, s) * dnorm(z, -m, s) +
+    0.3 * dnorm(x, m, s) * dnorm(y, -1.5 * m, s) * dnorm(z, m, s)
+}
+
+f <- function(x,y,z) nmix3(x,y,z,.5,.5)
+
+gs1 <- function(n = 40, k = 5, cmap = heat.colors, ...) {
+    th <- seq(0.05, 0.2, len = k)
+    col <- rev(cmap(length(th)))
+    x <- seq(-2, 2, len=n)
+    m <- function(x,y,z) x > .25 | y < -.3
+    contour3d(f,th,x,x,x,color=col, mask = m, engine = "none",
+              scale = FALSE, ...)
+}
+
+conts <- gs1(40, 5, screen=list(z = 130, x = -80),
+             color2 = "lightgray", cmap=rainbow)
+saveTrianglesAsOFF(conts,"nmix.OFF")
+@ 
+The volcano example was created with
+<<eval=false>>=
+z <- 2 * volcano
+x <- 10 * (1:nrow(z))
+y <- 10 * (1:ncol(z))
+vtri <- surfaceTriangles(x, y, z, color="green3")
+saveTrianglesAsOFF(vtri,"volcano.OFF")
+@ 
+
+\section{Images including color and transparency using Asymptote}
+\href{http://asymptote.sourceforge.net/}{Asymptote} is a powerful
+vector graphics language for 2D and 3D graphics. It is inspired by
+MetaPost and generalizes MetaPost path construction algorithms to
+three dimensions.
+%% http://www.piprime.fr/asymptote/
+It is possible to write out an asymptote program to represent a
+triangular mesh scene produced by \texttt{misc3d}. A function to do
+this is given in Appendix \ref{app:asy.R}.  Color and transparency are
+supported, though I have not yet figured out whether it is possible to
+have different colors on the two sides of a facet, or how to specify
+other material properties---it may well be possible.  As an example,
+the code
+<<eval=false>>=
+vtri <- surfaceTriangles(x, y, z, color="green3")
+cvtri <- updateTriangles(vtri, color = function(x,y,z) {
+    cols <- terrain.colors(diff(range(z)))
+    cols[z - min(z) + 1]
+})
+saveTrianglesAsASY(cvtri,"volcano.asy")
+@ 
+adds coloring to the volcano surface.  The command
+\begin{verbatim}
+asy -inlineimage -tex pdflatex volcano.asy 
+\end{verbatim}
+then produces a PRC file that can be included in a \LaTeX\ document.
+The result is shown in Figure \ref{fig:volcano-prc}
+\begin{figure}[h]
+  \centering
+  \includemovie[3Dlights=CAD,
+                poster,
+                text=(vol.prc),
+                label=vol.prc,
+                toolbar,
+                3Daac=22.15,
+                3Dcoo=0 0 -22.65,
+                3Dc2c=0.74 0.52 -0.43,
+                3Droll=85,
+                % 3Dgetview,
+                3Droo=80]{4in}{4in}{volcano.prc}
+  \caption{Color version of the volcano surface}
+  \label{fig:volcano-prc}
+  % \movieref[3Dgetview]{vol.prc}{Click here!}
+\end{figure}
+The code produced seems to require a fairly recent version of
+Asymptote; I used version 1.86.  Embedding in \LaTeX\ also requires a
+PCR-aware version of the \texttt{movie15} package; such a version is
+included in the Asymptote distribution.
+
+Color can also be used to help distinguish multiple contour surfaces
+as shown in Figure \ref{fig:nmix-color}.
+\begin{figure}[h]
+  \centering
+  \includemovie[3Dlights=CAD,
+                poster,
+                text=(nmix-color.prc),
+                label=nmix-color.prc,
+                toolbar,
+                3Daac=20,
+                3Dc2c=0.93 -0.22 -0.30,
+                3Dcoo=0 0 -50,
+                3Droll=-46.5,
+%                3Dgetview,
+                3Droo=80]{4in}{4in}{nmix-color.prc}
+  \caption{Color version of nested density contours.}
+  \label{fig:nmix-color}
+  % \movieref[3Dgetview]{nmix-color.prc}{Click here!}
+\end{figure}
+
+Transparency can also be sued to show multiple contour surfaces. This
+is illustrated in Figure \ref{fig:nmix-alpha}.  The additional code to
+produce this figure is
+<<eval=false>>=
+g1 <- function(n = 40, k = 5, alo = 0.1, ahi = 0.5, cmap = heat.colors) {
+    th <- seq(0.05, 0.2, len = k)
+    col <- rev(cmap(length(th)))
+    al <- seq(alo, ahi, len = length(th))
+    x <- seq(-2, 2, len=n)
+    contour3d(f,th,x,x,x,color=col,alpha=al, engine = "none")
+}
+aconts <- g1(40,5)
+saveTrianglesAsASY(aconts, "nmix-alpha.asy")
+@ 
+\begin{figure}[h]
+  \centering
+  \includemovie[3Dlights=CAD,
+                poster,
+                text=(nmix-alpha.prc),
+                label=nmix-alpha.prc,
+                toolbar,
+                3Daac=20,
+                3Dc2c=0.93 -0.22 -0.30,
+                3Dcoo=0 0 -50,
+                3Droll=-46.5,
+%                3Dgetview,
+                3Droo=80]{4in}{4in}{nmix-alpha.prc}
+  \caption{Nested density contours with colors and transparency.}
+  \label{fig:nmix-alpha}
+  % \movieref[3Dgetview]{nmix-alpha.prc}{Click here!}
+\end{figure}
+
+As final example, Figure \ref{fig:brain} shows the contour of a brain
+from an MR image along with several contours of the activation level
+measures in a PET experiment.
+\begin{figure}[h]
+  \centering
+  \includemovie[3Dlights=CAD,
+                poster,
+                text=(brain.prc),
+                label=brain.prc,
+                toolbar,
+                3Daac=34,
+                3Dc2c=-0.44 -0.83 -0.34,
+                3Dcoo=0 0 -32,
+                3Droll=-110,
+                %3Dgetview,
+                3Droo=50.00]{4in}{4in}{brain.prc}
+  \caption{MRI contour of a brain along with several contours of the
+    activation level in a PET experiment.}
+  \label{fig:brain}
+  % \movieref[3Dgetview]{brain.prc}{Click here!}
+\end{figure}
+To keep the file size and performance reasonable the brain image data
+needed to be reduced in resolution by one half in each dimension.
+
+The PCR files produced by this approach are huge. There may be some
+way to reduce them but I am not yet aware of any such approach.
+Possibly because of the file sizes the images do not immediately load
+when a page is shown in the reader.  Also I have observed a few
+crashes of the reader when the file includes a number of large
+embedded 3D images.
+
+\section{Other approaches}
+One other option using Open Source tools it so write out the objects
+in JVX format (an XML variant) and convert with jReality, but that
+also doesn't seem to write out colors for U3D properly.
+
+The Adobe 3D software available as part of Acrobat Pro Extended may be
+able to read OFF files and/or produce smaller PCR files. I am looking
+into this.
+
+\appendix
+\section{Writing OFF Files}
+\label{app:off.R}
+\verbatiminput{off.R}
+
+\section{Writing Asymptote Files}
+\label{app:asy.R}
+\verbatiminput{asy.R}
+\end{document}
