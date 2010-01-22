@@ -125,6 +125,89 @@ saveTrianglesAsOFF(vtri,"volcano.OFF")
 @ 
 
 \section{Images including color and transparency using IDTF or Asymptote}
+The \emph{Intermediate Data Text Format}\href{http://wiki.jmol.org/index.php?title=File_formats/3D_Objects}
+{(IDTF)}, is aother textual format that can be transformed into the U3D format.
+The IDTF is superior to IDTF in that color and transparency are supported.
+\href{http://wiki.jmol.org/index.php?title=File_formats/3D_Objects}{The IDTF converter} can be used to produce U3D files. 
+
+Color can also be used to help distinguish multiple contour surfaces
+as shown in Figure \ref{fig:nmix-color}. We need to save the contour surfaces
+<<eval=false>>=
+saveTrianglesAsIDTF(conts, "nmix-color.idtf")
+@ 
+ane then convert it to U3d file.
+\begin{figure}[h]
+  \centering
+  \includemovie[3Dlights=CAD,
+                poster,
+                text=(nmix-color.u3d),
+                label=nmix-color.u3d,
+                toolbar,
+                3Daac=20,
+                3Dc2c=0.93 -0.22 -0.30,
+                3Dcoo=0 0 -50,
+                3Droll=-46.5,
+%                3Dgetview,
+                3Droo=80]{4in}{4in}{nmix-color.u3d}
+  \caption{Color version of nested density contours.}
+  \label{fig:nmix-color}
+  % \movieref[3Dgetview]{nmix-color.prc}{Click here!}
+\end{figure}
+
+Transparency can also be sued to show multiple contour surfaces. This
+is illustrated in Figure \ref{fig:nmix-alpha}.  The additional code to
+produce this figure is
+<<eval=false>>=
+g1 <- function(n = 40, k = 5, alo = 0.1, ahi = 0.5, cmap = heat.colors) {
+    th <- seq(0.05, 0.2, len = k)
+    col <- rev(cmap(length(th)))
+    al <- seq(alo, ahi, len = length(th))
+    x <- seq(-2, 2, len=n)
+    contour3d(f,th,x,x,x,color=col,alpha=al, engine = "none")
+}
+aconts <- g1(40,5)
+saveTrianglesAsIDTF(aconts, "nmix-alpha.idtf")
+@ 
+\begin{figure}[h]
+  \centering
+  \includemovie[3Dlights=CAD,
+                poster,
+                text=(nmix-alpha.u3d),
+                label=nmix-alpha.u3d,
+                toolbar,
+                3Daac=20,
+                3Dc2c=0.93 -0.22 -0.30,
+                3Dcoo=0 0 -50,
+                3Droll=-46.5,
+%                3Dgetview,
+                3Droo=80]{4in}{4in}{nmix-alpha.u3d}
+  \caption{Nested density contours with colors and transparency.}
+  \label{fig:nmix-alpha}
+  % \movieref[3Dgetview]{nmix-alpha.prc}{Click here!}
+\end{figure}
+
+As another example, Figure \ref{fig:brain} shows the contour of a brain
+from an MR image along with several contours of the activation level
+measures in a PET experiment.
+\begin{figure}[h]
+  \centering
+  \includemovie[3Dlights=CAD,
+                poster,
+                text=(brain.u3d),
+                label=brain.u3d,
+                toolbar,
+                3Daac=34,
+                3Dc2c=-0.44 -0.83 -0.34,
+                3Dcoo=0 0 -32,
+                3Droll=-110,
+                %3Dgetview,
+                3Droo=50.00]{4in}{4in}{brain.u3d}
+  \caption{MRI contour of a brain along with several contours of the
+    activation level in a PET experiment.}
+  \label{fig:brain}
+  % \movieref[3Dgetview]{brain.prc}{Click here!}
+\end{figure}
+
 \href{http://asymptote.sourceforge.net/}{Asymptote} is a powerful
 vector graphics language for 2D and 3D graphics. It is inspired by
 MetaPost and generalizes MetaPost path construction algorithms to
@@ -150,7 +233,7 @@ adds coloring to the volcano surface.  The command
 asy -inlineimage -tex pdflatex volcano.asy 
 \end{verbatim}
 then produces a PRC file that can be included in a \LaTeX\ document.
-The result is shown in Figure \ref{fig:volcano-prc}
+%The result is shown in Figure \ref{fig:volcano-prc}
 %\begin{figure}[h]
 %  \centering
 %  \includemovie[3Dlights=CAD,
@@ -173,81 +256,8 @@ Asymptote; I used version 1.86.  Embedding in \LaTeX\ also requires a
 PCR-aware version of the \texttt{movie15} package; such a version is
 included in the Asymptote distribution.
 
-Color can also be used to help distinguish multiple contour surfaces
-as shown in Figure \ref{fig:nmix-color}.
-\begin{figure}[h]
-  \centering
-  \includemovie[3Dlights=CAD,
-                poster,
-                text=(nmix-color.prc),
-                label=nmix-color.prc,
-                toolbar,
-                3Daac=20,
-                3Dc2c=0.93 -0.22 -0.30,
-                3Dcoo=0 0 -50,
-                3Droll=-46.5,
-%                3Dgetview,
-                3Droo=80]{4in}{4in}{nmix-color.prc}
-  \caption{Color version of nested density contours.}
-  \label{fig:nmix-color}
-  % \movieref[3Dgetview]{nmix-color.prc}{Click here!}
-\end{figure}
-
-Transparency can also be sued to show multiple contour surfaces. This
-is illustrated in Figure \ref{fig:nmix-alpha}.  The additional code to
-produce this figure is
-<<eval=false>>=
-g1 <- function(n = 40, k = 5, alo = 0.1, ahi = 0.5, cmap = heat.colors) {
-    th <- seq(0.05, 0.2, len = k)
-    col <- rev(cmap(length(th)))
-    al <- seq(alo, ahi, len = length(th))
-    x <- seq(-2, 2, len=n)
-    contour3d(f,th,x,x,x,color=col,alpha=al, engine = "none")
-}
-aconts <- g1(40,5)
-saveTrianglesAsASY(aconts, "nmix-alpha.asy")
-@ 
-\begin{figure}[h]
-  \centering
-  \includemovie[3Dlights=CAD,
-                poster,
-                text=(nmix-alpha.prc),
-                label=nmix-alpha.prc,
-                toolbar,
-                3Daac=20,
-                3Dc2c=0.93 -0.22 -0.30,
-                3Dcoo=0 0 -50,
-                3Droll=-46.5,
-%                3Dgetview,
-                3Droo=80]{4in}{4in}{nmix-alpha.prc}
-  \caption{Nested density contours with colors and transparency.}
-  \label{fig:nmix-alpha}
-  % \movieref[3Dgetview]{nmix-alpha.prc}{Click here!}
-\end{figure}
-
-As final example, Figure \ref{fig:brain} shows the contour of a brain
-from an MR image along with several contours of the activation level
-measures in a PET experiment.
-\begin{figure}[h]
-  \centering
-  \includemovie[3Dlights=CAD,
-                poster,
-                text=(brain.prc),
-                label=brain.prc,
-                toolbar,
-                3Daac=34,
-                3Dc2c=-0.44 -0.83 -0.34,
-                3Dcoo=0 0 -32,
-                3Droll=-110,
-                %3Dgetview,
-                3Droo=50.00]{4in}{4in}{brain.prc}
-  \caption{MRI contour of a brain along with several contours of the
-    activation level in a PET experiment.}
-  \label{fig:brain}
-  % \movieref[3Dgetview]{brain.prc}{Click here!}
-\end{figure}
-To keep the file size and performance reasonable the brain image data
-needed to be reduced in resolution by one half in each dimension.
+%To keep the file size and performance reasonable the brain image data
+%needed to be reduced in resolution by one half in each dimension.
 
 The PCR files produced by this approach are huge. There may be some
 way to reduce them but I am not yet aware of any such approach.
@@ -265,12 +275,5 @@ The Adobe 3D software available as part of Acrobat Pro Extended may be
 able to read OFF files and/or produce smaller PCR files. I am looking
 into this.
 
-\appendix
-\section{Writing OFF Files}
-\label{app:off.R}
-\verbatiminput{off.R}
 
-\section{Writing Asymptote Files}
-\label{app:asy.R}
-\verbatiminput{asy.R}
 \end{document}
