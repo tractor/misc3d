@@ -1,20 +1,26 @@
 \documentclass{article}
 
 \usepackage{fullpage}
-\usepackage{epsfig}
 \usepackage[3D]{movie15}
-\usepackage[colorlinks=true]{hyperref}
-
+\usepackage[colorlinks=true]{hyperref} 
+\usepackage{verbatim}
 \graphicspath{{figures/}}
+
 \title{Embedding some \texttt{misc3d} figures in a PDF as interactive
   3D objects}
-\author{Luke Tierney\\Statistics and Actuarial Science\\University of Iowa}
+\author{Luke Tierney\\Statistics and Actuarial Science\\University of Iowa\and
+        Dai Feng\\Biometrics Research\\Merck & Co., Inc.}
 
 \begin{document}
+%\VignetteIndexEntry{Embedding \texttt{misc3d} figures in PDF}
+%\VignetteKeywords{pdf, interactive 3D, U3D, PRC}
+%\VignettePackage{misc3d}
+
 \maketitle
-<<echo=FALSE>>=
+<<echo=false,results=hide>>=
 library(misc3d)
 @
+
 Recent versions of PDF and of the Acrobat reader support inclusion of
 3D formats for representing interactive 3D models.  This note
 describes how this support can be used to include interactive
@@ -22,8 +28,8 @@ versions of 3D contour plots and other triangular mesh scenes produced
 by the \texttt{misc3d} R package. There are two file formats supported
 called U3D and PRC.  Both are complex binary formats, so it is useful
 to find simple textual formats for representing 3D objects along with
-software for converting these to U3D or PRC.  So far I have found two
-approaches, one that captures only the geometry and one that captures
+software for converting these to U3D or PRC.  So far we have found three
+approaches, one that captures only the geometry and the other two that captures
 geometry along with color and transparency.
 
 \section{Geometry-only images using MeshLab and U3D.}
@@ -53,7 +59,7 @@ volcano surface from the R distribution.
                   toolbar, %same as `controls'
                   label=nmix.u3d,
                   text=(nmix.u3d),
-                  3Droo=10,
+                  3Droo=10, 
                   3Dc2c=0.65 -0.225 0.725,
                   3Droll=-64.5,
                   3Dviews=nmix.vws,
@@ -74,7 +80,7 @@ volcano surface from the R distribution.
                   label=vol.u3d,
                   text=(nmix.u3d),
                   3Droo=2000,
-                  3Dcoo=-440 360 260,
+                  3Dcoo=-440 360 260, 
                   3Dc2c=-0.55 0.70 -0.465,
                   3Droll=-68,
                   % 3Dgetview,
@@ -87,7 +93,7 @@ volcano surface from the R distribution.
 \end{figure}
 The normal mixture contours were created with a variant of code from
 the \texttt{contour3d} help page:
-<<label=nmix3, echo=TRUE>>=
+<<eval=false>>=
 nmix3 <- function(x, y, z, m, s) {
     0.4 * dnorm(x, m, s) * dnorm(y, m, s) * dnorm(z, m, s) +
     0.3 * dnorm(x, -m, s) * dnorm(y, -m, s) * dnorm(z, -m, s) +
@@ -108,17 +114,17 @@ gs1 <- function(n = 40, k = 5, cmap = heat.colors, ...) {
 conts <- gs1(40, 5, screen=list(z = 130, x = -80),
              color2 = "lightgray", cmap=rainbow)
 saveTrianglesAsOFF(conts,"nmix.OFF")
-@
+@ 
 The volcano example was created with
-\begin{verbatim}
+<<eval=false>>=
 z <- 2 * volcano
 x <- 10 * (1:nrow(z))
 y <- 10 * (1:ncol(z))
 vtri <- surfaceTriangles(x, y, z, color="green3")
 saveTrianglesAsOFF(vtri,"volcano.OFF")
-\end{verbatim}
+@ 
 
-\section{Images including color and transparency using Asymptote}
+\section{Images including color and transparency using IDTF or Asymptote}
 \href{http://asymptote.sourceforge.net/}{Asymptote} is a powerful
 vector graphics language for 2D and 3D graphics. It is inspired by
 MetaPost and generalizes MetaPost path construction algorithms to
@@ -131,37 +137,37 @@ supported, though I have not yet figured out whether it is possible to
 have different colors on the two sides of a facet, or how to specify
 other material properties---it may well be possible.  As an example,
 the code
-\begin{verbatim}
+<<eval=false>>=
 vtri <- surfaceTriangles(x, y, z, color="green3")
 cvtri <- updateTriangles(vtri, color = function(x,y,z) {
     cols <- terrain.colors(diff(range(z)))
     cols[z - min(z) + 1]
 })
 saveTrianglesAsASY(cvtri,"volcano.asy")
-\end{verbatim}
+@ 
 adds coloring to the volcano surface.  The command
 \begin{verbatim}
-asy -inlineimage -tex pdflatex volcano.asy
+asy -inlineimage -tex pdflatex volcano.asy 
 \end{verbatim}
 then produces a PRC file that can be included in a \LaTeX\ document.
 The result is shown in Figure \ref{fig:volcano-prc}
-\begin{figure}[h]
-  \centering
-  \includemovie[3Dlights=CAD,
-                poster,
-                text=(vol.prc),
-                label=vol.prc,
-                toolbar,
-                3Daac=22.15,
-                3Dcoo=0 0 -22.65,
-                3Dc2c=0.74 0.52 -0.43,
-                3Droll=85,
+%\begin{figure}[h]
+%  \centering
+%  \includemovie[3Dlights=CAD,
+%                poster,
+%                text=(vol.prc),
+%                label=vol.prc,
+%                toolbar,
+%                3Daac=22.15,
+%                3Dcoo=0 0 -22.65,
+%                3Dc2c=0.74 0.52 -0.43,
+%                3Droll=85,
                 % 3Dgetview,
-                3Droo=80]{4in}{4in}{volcano.prc}
-  \caption{Color version of the volcano surface}
-  \label{fig:volcano-prc}
+%                3Droo=80]{4in}{4in}{volcano.prc}
+%  \caption{Color version of the volcano surface}
+%  \label{fig:volcano-prc}
   % \movieref[3Dgetview]{vol.prc}{Click here!}
-\end{figure}
+%\end{figure}
 The code produced seems to require a fairly recent version of
 Asymptote; I used version 1.86.  Embedding in \LaTeX\ also requires a
 PCR-aware version of the \texttt{movie15} package; such a version is
@@ -190,7 +196,7 @@ as shown in Figure \ref{fig:nmix-color}.
 Transparency can also be sued to show multiple contour surfaces. This
 is illustrated in Figure \ref{fig:nmix-alpha}.  The additional code to
 produce this figure is
-\begin{verbatim}
+<<eval=false>>=
 g1 <- function(n = 40, k = 5, alo = 0.1, ahi = 0.5, cmap = heat.colors) {
     th <- seq(0.05, 0.2, len = k)
     col <- rev(cmap(length(th)))
@@ -200,7 +206,7 @@ g1 <- function(n = 40, k = 5, alo = 0.1, ahi = 0.5, cmap = heat.colors) {
 }
 aconts <- g1(40,5)
 saveTrianglesAsASY(aconts, "nmix-alpha.asy")
-\end{verbatim}
+@ 
 \begin{figure}[h]
   \centering
   \includemovie[3Dlights=CAD,
