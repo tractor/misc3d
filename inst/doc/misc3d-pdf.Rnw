@@ -17,10 +17,9 @@
 
 \maketitle
 
-%<<echo=false,results=hide>>=
-%.libPaths("~/RpackNew")
-%library(misc3d)
-%@
+<<echo=false,results=hide>>=
+library(misc3d)
+@
 
 Recent versions of PDF and of the Acrobat reader support inclusion of
 3D formats for representing interactive 3D models.  This note
@@ -114,7 +113,7 @@ gs1 <- function(n = 40, k = 5, cmap = heat.colors, ...) {
 
 conts <- gs1(40, 5, screen=list(z = 130, x = -80),
              color2 = "lightgray", cmap=rainbow)
-saveTrianglesAsOFF(conts,"nmix.OFF")
+exportScene(conts, "nmix", "OFF")
 @ 
 The volcano example was created with
 <<eval=false>>=
@@ -122,7 +121,7 @@ z <- 2 * volcano
 x <- 10 * (1:nrow(z))
 y <- 10 * (1:ncol(z))
 vtri <- surfaceTriangles(x, y, z, color="green3")
-saveTrianglesAsOFF(vtri,"volcano.OFF")
+exportScene(vtri, "volcano", "OFF")
 @ 
 
 \section{Images including color and transparency using IDTF or Asymptote}
@@ -134,7 +133,7 @@ The IDTF is superior to IDTF in that color and transparency are supported.
 Color can also be used to help distinguish multiple contour surfaces
 as shown in Figure \ref{fig:nmix-color}. We need to save the contour surfaces
 <<eval=false>>=
-saveTrianglesAsIDTF(conts, "nmix-color.idtf")
+exportScene(conts, "nmix-color", "IDTF")
 @ 
 ane then convert it to U3d file.
 \begin{figure}[h]
@@ -165,7 +164,7 @@ g1 <- function(n = 40, k = 5, alo = 0.1, ahi = 0.5, cmap = heat.colors) {
     contour3d(f,th,x,x,x,color=col,alpha=al, engine = "none")
 }
 aconts <- g1(40,5)
-saveTrianglesAsIDTF(aconts, "nmix-alpha.idtf")
+exportScene(aconts, "nmix-alpha", "IDTF")
 @ 
 \begin{figure}[h]
   \centering
@@ -224,7 +223,7 @@ cvtri <- updateTriangles(vtri, color = function(x,y,z) {
     cols <- terrain.colors(diff(range(z)))
     cols[z - min(z) + 1]
 })
-saveTrianglesAsASY(cvtri,"volcano.asy")
+exportScene(cvtri, "volcano", "ASY")
 @ 
 adds coloring to the volcano surface.  The command
 \begin{verbatim}
