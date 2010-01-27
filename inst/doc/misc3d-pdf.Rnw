@@ -7,9 +7,10 @@
 
 \title{Embedding some \texttt{misc3d} figures in a PDF as interactive
   3D objects}
-\author{Luke Tierney\\Statistics and Actuarial Science\\University of Iowa \and
-        Dai Feng\\Biometrics Research\\Merck \& Co., Inc.}
-
+\author{Luke Tierney$^1$ and Dai Feng$^2$\\
+  $^1$Department of Statistics and Actuarial Science\\University of Iowa\\ 
+  $^2$Biometrics Research\\Merck \& Co., Inc.
+}
 \begin{document}
 %\VignetteIndexEntry{Embedding \texttt{misc3d} figures in PDF}
 %\VignetteKeywords{pdf, interactive 3D, U3D, PRC}
@@ -18,19 +19,21 @@
 \maketitle
 
 <<echo=false,results=hide>>=
+.libPaths("~/RpackNew")
 library(misc3d)
 @
 
 Recent versions of PDF and of the Acrobat reader support inclusion of
-3D formats for representing interactive 3D models.  This note
+3D formats for representing interactive 3D models.  There are two file 
+formats supported called U3D and PRC.  Both are complex binary formats, 
+so it is useful to find simple textual formats for representing 3D objects 
+along with software for converting these to U3D or PRC.  This vignette
 describes how this support can be used to include interactive
 versions of 3D contour plots and other triangular mesh scenes produced
-by the \texttt{misc3d} R package. There are two file formats supported
-called U3D and PRC.  Both are complex binary formats, so it is useful
-to find simple textual formats for representing 3D objects along with
-software for converting these to U3D or PRC.  So far we have found three
-approaches, one that captures only the geometry and the other two that captures
-geometry along with color and transparency.
+by the \texttt{misc3d} R package. So far there are three
+approaches available in \texttt{misc3d}, one that captures only the 
+geometry and the other two that captures geometry along with color 
+and transparency.
 
 \section{Geometry-only images using MeshLab and U3D.}
 \href{http://meshlab.sourceforge.net}{MeshLab} is an open source
@@ -38,19 +41,21 @@ system for the processing and editing of unstructured 3D triangular
 meshes.  It can read and write several formats representing such
 meshes.  An easy format to write that MeshLab can read is the
 \href{http://people.sc.fsu.edu/~burkardt/data/off/off.html}{OFF}
-format.  A function to write out \texttt{misc3d} scenes in OFF format
-is shown in Appendix \ref{app:off.R}.  This function does not attempt
-to write out color, transparency or material properties.  Color and
+format.  Function \texttt{exportScene} is used to write out \texttt{misc3d} 
+scenes in OFF and other textual format.
+For OFF format, the function does not attempt to write out color, 
+transparency or material properties.  Color and
 transparency are supported in OFF format but MeshLab doesn't seem to
-write them properly into the U3D (or read them from OFF for that
-matter).  The OFF file produced by this function can then be read in
+write them properly into the U3D, though some versions are capable of reading 
+OFF files with color and transparancy (COFF).  
+The OFF file produced by this function can then be read in
 by MeshLab and then exported in U3D format.  The \texttt{movie15}
 \LaTeX\ package can then be used to include the image in a PDF
 document created with \texttt{pdflatex}.
 
 Figures \ref{fig:nmix-u3d} and \ref{fig:volcano-u3d} show two
 images created by this approach, one shows nested contours of the
-density a mixture of three-dimensional normals, the other shows the
+density of a mixture of three-dimensional normals, the other shows the
 volcano surface from the R distribution.
 \begin{figure}[h]
   \centering
@@ -126,12 +131,12 @@ exportScene(vtri, "volcano", "OFF")
 
 \section{Images including color and transparency using IDTF or Asymptote}
 The \emph{Intermediate Data Text Format}\href{http://wiki.jmol.org/index.php?title=File_formats/3D_Objects}
-{(IDTF)}, is aother textual format that can be transformed into the U3D format.
-The IDTF is superior to IDTF in that color and transparency are supported.
+{ (IDTF)}, is aother textual format that can be transformed into the U3D format.
+The IDTF is superior to OFF in that color and transparency are supported.
 \href{http://wiki.jmol.org/index.php?title=File_formats/3D_Objects}{The IDTF converter} can be used to produce U3D files. 
 
-Color can also be used to help distinguish multiple contour surfaces
-as shown in Figure \ref{fig:nmix-color}. We need to save the contour surfaces
+Color can be used to help distinguish multiple contour surfaces
+as shown in Figure \ref{fig:nmix-color}. We need to export the contour surfaces
 <<eval=false>>=
 exportScene(conts, "nmix-color", "IDTF")
 @ 
@@ -152,7 +157,7 @@ ane then convert it to U3d file.
   \label{fig:nmix-color}
 \end{figure}
 
-Transparency can also be sued to show multiple contour surfaces. This
+Transparency can also be used to show multiple contour surfaces. This
 is illustrated in Figure \ref{fig:nmix-alpha}.  The additional code to
 produce this figure is
 <<eval=false>>=
@@ -213,9 +218,7 @@ three dimensions.
 It is possible to write out an asymptote program to represent a
 triangular mesh scene produced by \texttt{misc3d}. A function to do
 this is given in Appendix \ref{app:asy.R}.  Color and transparency are
-supported, though I have not yet figured out whether it is possible to
-have different colors on the two sides of a facet, or how to specify
-other material properties---it may well be possible.  As an example,
+supported.  As an example,
 the code
 <<eval=false>>=
 vtri <- surfaceTriangles(x, y, z, color="green3")
@@ -249,19 +252,25 @@ then produces a PRC file that can be included in a \LaTeX\ document.
   % \movieref[3Dgetview]{vol.prc}{Click here!}
 %\end{figure}
 The code produced seems to require a fairly recent version of
-Asymptote; I used version 1.86.  Embedding in \LaTeX\ also requires a
+Asymptote; we used version 1.86.  Embedding in \LaTeX\ also requires a
 PCR-aware version of the \texttt{movie15} package; such a version is
 included in the Asymptote distribution.
 
 %To keep the file size and performance reasonable the brain image data
 %needed to be reduced in resolution by one half in each dimension.
 
-The PCR files produced by this approach are huge. There may be some
-way to reduce them but I am not yet aware of any such approach.
-Possibly because of the file sizes the images do not immediately load
-when a page is shown in the reader.  Also I have observed a few
+The PCR files produced by this approach are huge. We are looking into possible
+ways to reduce them.  This is not an easy task possibly because of the file 
+sizes the images do not immediately load
+when a page is shown in the reader.  Also we have observed a few
 crashes of the reader when the file includes a number of large
 embedded 3D images.
+
+For the IDTF format, we still need to figure out how to properly produce 
+a single mesh surface with different colors like in the volcano example.
+For both the IDTF and Asymptote, we have not yet figured out whether 
+it is possible to have different colors on the two sides of a facet, 
+or how to specify other material properties, which may well be possible.  
 
 \section{Other approaches}
 One other option using Open Source tools it so write out the objects
@@ -269,7 +278,7 @@ in JVX format (an XML variant) and convert with jReality, but that
 also doesn't seem to write out colors for U3D properly.
 
 The Adobe 3D software available as part of Acrobat Pro Extended may be
-able to read OFF files and/or produce smaller PCR files. I am looking
+able to read OFF files and/or produce smaller PCR files.  We are looking
 into this.
 
 
