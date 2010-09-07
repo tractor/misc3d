@@ -19,7 +19,7 @@
 \maketitle
 
 <<echo=false,results=hide>>=
-.libPaths("~/RpackNew")
+.libPaths("~/Rlib")
 library(misc3d)
 @
 
