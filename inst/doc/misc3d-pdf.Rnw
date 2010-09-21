@@ -19,7 +19,6 @@
 \maketitle
 
 <<echo=false,results=hide>>=
-.libPaths("~/Rlib")
 library(misc3d)
 @
 
