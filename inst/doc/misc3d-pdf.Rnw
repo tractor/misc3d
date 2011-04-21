@@ -198,11 +198,11 @@ measures in a PET experiment.
                 label=brain.u3d,
                 toolbar,
                 3Daac=34,
-                3Dc2c=-0.44 -0.83 -0.34,
+                3Dc2c=-0.1 -0.1 -0.14,
                 3Dcoo=0 0 -32,
                 3Droll=-110,
                 %3Dgetview,
-                3Droo=50.00]{4in}{4in}{brain.u3d}
+                3Droo=100.00]{4in}{4in}{brain.u3d}
   \caption{MRI contour of a brain along with several contours of the
     activation level in a PET experiment.}
   \label{fig:brain}
