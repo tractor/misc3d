@@ -30,7 +30,8 @@ along with software for converting these to U3D or PRC.  This vignette
 describes how this support can be used to include interactive
 versions of 3D contour plots and other triangular mesh scenes produced
 by the \texttt{misc3d} R package. So far there are three
-approaches available in \texttt{misc3d}, one that captures only the 
+formats available in \texttt{misc3d} through the function 
+\texttt{exportScene}, one that captures only the 
 geometry and the other two that captures geometry along with color 
 and transparency.
 
@@ -40,17 +41,17 @@ system for the processing and editing of unstructured 3D triangular
 meshes.  It can read and write several formats representing such
 meshes.  An easy format to write that MeshLab can read is the
 \href{http://people.sc.fsu.edu/~burkardt/data/off/off.html}{OFF}
-format.  Function \texttt{exportScene} is used to write out \texttt{misc3d} 
-scenes in OFF and other textual format.
+format.  
 For OFF format, the function does not attempt to write out color, 
 transparency or material properties.  Color and
 transparency are supported in OFF format but MeshLab doesn't seem to
 write them properly into the U3D, though some versions are capable of reading 
-OFF files with color and transparancy (COFF).  
-The OFF file produced by this function can then be read in
-by MeshLab and then exported in U3D format.  The \texttt{movie15}
-\LaTeX\ package can then be used to include the image in a PDF
-document created with \texttt{pdflatex}.
+OFF files with color and transparency (COFF).  
+The OFF file produced can then be read in
+by MeshLab and then exported in U3D format.  
+The \href{http://ctan.org/tex-archive/macros/latex/contrib/movie15/}
+{\texttt{movie15}} \LaTeX\ package can then be used to include the image 
+in a PDF document created with \texttt{pdflatex}.
 
 Figures \ref{fig:nmix-u3d} and \ref{fig:volcano-u3d} show two
 images created by this approach, one shows nested contours of the
@@ -63,9 +64,9 @@ volcano surface from the R distribution.
                   toolbar, %same as `controls'
                   label=nmix.u3d,
                   text=(nmix.u3d),
-                  3Droo=10, 
-                  3Dc2c=0.65 -0.225 0.725,
-                  3Droll=-64.5,
+                  %3Droo=10, 
+                  %3Dc2c=0.65 -0.225 0.725,
+                  %3Droll=-64.5,
                   3Dviews=nmix.vws,
                   % 3Dgetview,
                   3Dlights=CAD,
@@ -128,18 +129,28 @@ vtri <- surfaceTriangles(x, y, z, color="green3")
 exportScene(vtri, "volcano", "OFF")
 @ 
 
-\section{Images including color and transparency using IDTF or Asymptote}
-The \emph{Intermediate Data Text Format}\href{http://wiki.jmol.org/index.php?title=File_formats/3D_Objects}
-{ (IDTF)}, is aother textual format that can be transformed into the U3D format.
-The IDTF is superior to OFF in that color and transparency are supported.
-\href{http://wiki.jmol.org/index.php?title=File_formats/3D_Objects}{The IDTF converter} can be used to produce U3D files. 
+When using the \texttt{movie15} package, to vary the view of embedded 3D objects
+the options in \texttt{includemovie} need to be adjusted by specification
+of different entries or use a predefined view file with extension \texttt{.vws}.
+See the manual of \texttt{movie15} for more details and the accompanied  
+source file \texttt{misc3d-pdf.Rnw} for examples.
 
-Color can be used to help distinguish multiple contour surfaces
-as shown in Figure \ref{fig:nmix-color}. We need to export the contour surfaces
+\section{Images including color and transparency using IDTF or Asymptote}
+Compared with the OFF format, the \emph{Intermediate Data Text Format} \href{http://wiki.jmol.org/index.php?title=File_formats/3D_Objects}
+{ (IDTF)} and the \href{http://asymptote.sourceforge.net/}{Asymptote}
+support not only geometry but color and transparency as well.  When 
+every triangular mesh surface has only one color and transparency level,
+we suggest using the IDTF since the size of 3D objects it produces is 
+much smaller; otherwise, use the Asymptote format.
+
+The IDTF is another textual format that can be transformed into the U3D format.
+As an example, to use color to distinguish multiple contour surfaces
+as shown in Figure \ref{fig:nmix-color}, we need to export the contour surfaces
 <<eval=false>>=
 exportScene(conts, "nmix-color", "IDTF")
 @ 
-ane then convert it to U3d file.
+and then convert it to U3d file using the \href{http://wiki.jmol.org/index.php/File_formats/3D_PDF}{IDTF converter}. 
+
 \begin{figure}[h]
   \centering
   \includemovie[3Dlights=CAD,
@@ -209,15 +220,13 @@ measures in a PET experiment.
   % \movieref[3Dgetview]{brain.prc}{Click here!}
 \end{figure}
 
-\href{http://asymptote.sourceforge.net/}{Asymptote} is a powerful
+Asymptote is a powerful
 vector graphics language for 2D and 3D graphics. It is inspired by
 MetaPost and generalizes MetaPost path construction algorithms to
 three dimensions.
 %% http://www.piprime.fr/asymptote/
 It is possible to write out an asymptote program to represent a
-triangular mesh scene produced by \texttt{misc3d}. A function to do
-this is given in Appendix \ref{app:asy.R}.  Color and transparency are
-supported.  As an example,
+triangular mesh scene produced by \texttt{misc3d}.  As an example,
 the code
 <<eval=false>>=
 vtri <- surfaceTriangles(x, y, z, color="green3")
@@ -229,27 +238,27 @@ exportScene(cvtri, "volcano", "ASY")
 @ 
 adds coloring to the volcano surface.  The command
 \begin{verbatim}
-asy -inlineimage -tex pdflatex volcano.asy 
+./asy -inlineimage -tex pdflatex volcano.asy 
 \end{verbatim}
 then produces a PRC file that can be included in a \LaTeX\ document.
-%The result is shown in Figure \ref{fig:volcano-prc}
-%\begin{figure}[h]
-%  \centering
-%  \includemovie[3Dlights=CAD,
-%                poster,
-%                text=(vol.prc),
-%                label=vol.prc,
-%                toolbar,
-%                3Daac=22.15,
-%                3Dcoo=0 0 -22.65,
-%                3Dc2c=0.74 0.52 -0.43,
-%                3Droll=85,
+The result is shown in Figure \ref{fig:volcano-prc}.
+\begin{figure}[h]
+  \centering
+  \includemovie[3Dlights=CAD,
+                poster,
+                text=(vol.prc),
+                label=vol.prc,
+                toolbar,
+                3Daac=22.15,
+                3Dcoo=0 0 -22.65,
+                3Dc2c=0.74 0.52 -0.43,
+                3Droll=85,
                 % 3Dgetview,
-%                3Droo=80]{4in}{4in}{volcano.prc}
-%  \caption{Color version of the volcano surface}
-%  \label{fig:volcano-prc}
+                3Droo=80]{4in}{4in}{volcano.prc}
+  \caption{Color version of the volcano surface.}
+  \label{fig:volcano-prc}
   % \movieref[3Dgetview]{vol.prc}{Click here!}
-%\end{figure}
+\end{figure}
 The code produced seems to require a fairly recent version of
 Asymptote; we used version 1.86.  Embedding in \LaTeX\ also requires a
 PCR-aware version of the \texttt{movie15} package; such a version is
@@ -265,14 +274,17 @@ when a page is shown in the reader.  Also we have observed a few
 crashes of the reader when the file includes a number of large
 embedded 3D images.
 
-For the IDTF format, we still need to figure out how to properly produce 
-a single mesh surface with different colors like in the volcano example.
-For both the IDTF and Asymptote, we have not yet figured out whether 
-it is possible to have different colors on the two sides of a facet, 
-or how to specify other material properties, which may well be possible.  
+The current available document on the IDTF and U3D seems to be limited.  
+For the IDTF format, we figured out a way to produce a single mesh surface 
+with different colors like in the volcano example in Figure \ref{fig:volcano-prc}.  However, since the size of IDTF files and
+corresponding U3D files are huge, we didn't incorporate that function into
+the package.  For both the IDTF and Asymptote, 
+we have not yet figured out whether it is possible to have different colors 
+on the two sides of a facet, or how to specify other material properties, 
+which may well be possible.  
 
 \section{Other approaches}
-One other option using Open Source tools it so write out the objects
+One other option using Open Source tools is to write out the objects
 in JVX format (an XML variant) and convert with jReality, but that
 also doesn't seem to write out colors for U3D properly.
 
