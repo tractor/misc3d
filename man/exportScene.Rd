@@ -2,7 +2,7 @@
 \alias{exportScene}
 \title{Writing Out Triangular Mesh Scenes}
 \description{
-  Writing out scenes consisting of one or more surfaces described by triangular
+  Writing out scenes consisting of one or more surfaces represented by triangular
   mesh data structures to textual files.
 }
 \usage{
@@ -22,7 +22,7 @@ exportScene(scene, filename, format=c("OFF", "IDTF", "ASY"))
 \details{
   \code{exportScene} writes out scenes to textual files,
   which can be used for other purposes, for example the
-  generation of U3d and PRC files for interactive 3D visulization in
+  generation of U3d and PRC files for interactive 3D visualization in
   a PDF. See the accompanied vignette for more details.
 }
 \examples{
