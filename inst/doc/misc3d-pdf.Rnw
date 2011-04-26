@@ -275,13 +275,13 @@ crashes of the reader when the file includes a number of large
 embedded 3D images.
 
 The current available document on the IDTF and U3D seems to be limited.  
-For the IDTF format, we figured out a way to produce a single mesh surface 
+For the IDTF format, we found a way to produce a single mesh surface 
 with different colors like in the volcano example in Figure \ref{fig:volcano-prc}.  However, since the size of IDTF files and
 corresponding U3D files are huge, we didn't incorporate that function into
 the package.  For both the IDTF and Asymptote, 
-we have not yet figured out whether it is possible to have different colors 
-on the two sides of a facet, or how to specify other material properties, 
-which may well be possible.  
+questions remained to be solved are whether it is possible to have 
+different colors on the two sides of a facet and how to specify other 
+material properties.  
 
 \section{Other approaches}
 One other option using Open Source tools is to write out the objects
