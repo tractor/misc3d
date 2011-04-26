@@ -29,13 +29,13 @@ so it is useful to find simple textual formats for representing 3D objects
 along with software for converting these to U3D or PRC.  This vignette
 describes how this support can be used to include interactive
 versions of 3D contour plots and other triangular mesh scenes produced
-by the \texttt{misc3d} R package. So far there are three
+by the \texttt{misc3d} package. So far there are three
 formats available in \texttt{misc3d} through the function 
 \texttt{exportScene}, one that captures only the 
 geometry and the other two that captures geometry along with color 
 and transparency.
 
-\section{Geometry-only images using MeshLab and U3D.}
+\section{Geometry-only images using MeshLab and U3D}
 \href{http://meshlab.sourceforge.net}{MeshLab} is an open source
 system for the processing and editing of unstructured 3D triangular
 meshes.  It can read and write several formats representing such
