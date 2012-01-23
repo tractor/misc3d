@@ -7,7 +7,8 @@
   centered at points along them.
 }
 \usage{
-linesTetrahedra <- function(x, y, z, delta=1, lwd = 0.01, color = "black", ...)
+linesTetrahedra(x, y, z, delta=1, lwd = 0.01, color = "black", ...)
+}
 \arguments{
   \item{x, y, z}{numeric vectors of length two or matrices with two
     columns representing coordinates of starting and ending points 
