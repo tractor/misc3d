@@ -366,7 +366,7 @@ vertexColors <- function(vt, col) {
 
 interpolateVertexColors <- function(VC, ib) {
     TC <- (VC[ib[1,],] + VC[ib[2,],] + VC[ib[3,],]) / 3
-    rgb(TC[,1], TC[,2], TC[,3], max=255)
+    rgb(TC[,1], TC[,2], TC[,3], maxColorValue = 255)
 }
 
 triangleEdges <- function(vb, ib) {
