@@ -2,7 +2,7 @@ Package: misc3d
 Title: Miscellaneous 3D Plots
 Version: 0.9-0
 Author: Dai Feng and Luke Tierney
-Maintainer: Luke Tierney <luke@stat.uiowa.edu>
+Maintainer: Luke Tierney <luke-tierney@uiowa.edu>
 Suggests: rgl, tkrplot, MASS
 Description: A collection of miscellaneous 3d plots, including
     isosurfaces.
