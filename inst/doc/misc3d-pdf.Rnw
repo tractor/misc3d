@@ -208,9 +208,9 @@ measures in a PET experiment.
                 text=(brain.u3d),
                 label=brain.u3d,
                 toolbar,
-                3Daac=34,
+                3Daac=60,
                 3Dc2c=-0.1 -0.1 -0.14,
-                3Dcoo=0 0 -32,
+                3Dcoo=30 30 50,
                 3Droll=-110,
                 %3Dgetview,
                 3Droo=100.00]{4in}{4in}{brain.u3d}
