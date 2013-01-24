@@ -15,5 +15,5 @@
 \source{
   Converted from the netCDF file made available by Dave Forrest at
   \url{http://www.maplepark.com/~drf5n/extras/teapot.nc}.
- }
+}
 \keyword{datasets}
