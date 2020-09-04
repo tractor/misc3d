@@ -3,7 +3,7 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
     if (! rgl.cur())
         open3d()
     if (!add)
-        clear3d()
+        next3d()
 
     scene <- colorScene(scene)
     triangles <- canonicalizeAndMergeScene(scene, "color", "color2", "alpha",
@@ -52,12 +52,12 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
                       col = col, alpha = alpha, normals = normals,
                       front = front, back = back, ...)
         else {
-            triangles3d(data[,1], data[,2], data[,3],
+            c(triangles3d(data[,1], data[,2], data[,3],
 	              col = col, alpha = alpha, normals = normals,
-                      front = front, back = "cull", ...)
-            triangles3d(data[,1], data[,2], data[,3],
+                      front = front, back = "cull", ...),
+              triangles3d(data[,1], data[,2], data[,3],
 	              col = col2, alpha = alpha, normals = normals,
-                      front = "cull", back = back, ...)
+                      front = "cull", back = back, ...))
         }
     }
         
