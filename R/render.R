@@ -1,9 +1,9 @@
 drawScene.rgl <- function(scene, add = FALSE, ...) {
     loadRGL()
-    if (! rgl.cur())
-        open3d()
+    if (! rgl::rgl.cur())
+        rgl::open3d()
     if (!add)
-        next3d()
+        rgl::next3d()
 
     scene <- colorScene(scene)
     triangles <- canonicalizeAndMergeScene(scene, "color", "color2", "alpha",
@@ -48,14 +48,14 @@ drawScene.rgl <- function(scene, add = FALSE, ...) {
     if (nrow(data) > 0) # to avoid a segfault in rgl
     {
         if (! use.col2)
-    	    triangles3d(data[,1], data[,2], data[,3],
+    	    rgl::triangles3d(data[,1], data[,2], data[,3],
                       col = col, alpha = alpha, normals = normals,
                       front = front, back = back, ...)
         else {
-            c(triangles3d(data[,1], data[,2], data[,3],
+            c(rgl::triangles3d(data[,1], data[,2], data[,3],
 	              col = col, alpha = alpha, normals = normals,
                       front = front, back = "cull", ...),
-              triangles3d(data[,1], data[,2], data[,3],
+              rgl::triangles3d(data[,1], data[,2], data[,3],
 	              col = col2, alpha = alpha, normals = normals,
                       front = "cull", back = back, ...))
         }

@@ -45,7 +45,8 @@ exportScene(scene, filename, format=c("OFF", "IDTF", "ASY"))
  
   conts <- gs1(40, 5, screen=list(z = 130, x = -80),
                color2 = "lightgray", cmap=rainbow)
-  exportScene(conts, "nmix", "OFF")
+  filename <- file.path(tempdir(), "nmix")
+  exportScene(conts, filename, "OFF")
 }
 \keyword{hplot}
 
