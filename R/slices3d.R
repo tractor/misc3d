@@ -45,21 +45,21 @@ slices3d <- function(vol1, vol2=NULL, rlim1=c(-Inf, Inf), rlim2=NULL,
     }
     mkscale <- function(i) {
         f <- function(...) {
-             b <- as.numeric(tclvalue(bbv[[i]]))
+             b <- as.numeric(tcltk::tclvalue(bbv[[i]]))
              if (b != bb[i]) {
                 bb[i] <<- b
                 if (cross || i == 4)
                     for (j in 1:3) tkrplot::tkrreplot(img[[j]])
                 else  tkrplot::tkrreplot(img[[i]])
-                tkconfigure(l2, text=bb[i])
+                tcltk::tkconfigure(l2, text=bb[i])
             }
         }
-        fr <- tkframe(tt)
-        s <- tkscale(fr, command=f, from=1, to=d[i], resolution=1,
+        fr <- tcltk::tkframe(tt)
+        s <- tcltk::tkscale(fr, command=f, from=1, to=d[i], resolution=1,
                 variable=bbv[[i]], showvalue=FALSE, orient="horiz")
-        l1 <- tklabel(fr, text = dn[i])
-        l2 <- tklabel(fr, textvariable = bbv[[i]])
-        tkgrid(l1, s, l2)
+        l1 <- tcltk::tklabel(fr, text = dn[i])
+        l2 <- tcltk::tklabel(fr, textvariable = bbv[[i]])
+        tcltk::tkgrid(l1, s, l2)
         fr
     }
     move <- function(which){
@@ -75,9 +75,9 @@ slices3d <- function(vol1, vol2=NULL, rlim1=c(-Inf, Inf), rlim2=NULL,
                    x = { i <- 2; j <- 1; k <- 3 },
                    z = { i <- 3; j <- 1; k <- 2 })
         }
-        tkbind(img[[i]],"<Button-1>", function(x,y){
-            wid <- as.integer(tkwinfo("width",img[[i]]))
-            hei <- as.integer(tkwinfo("height",img[[i]]))
+        tcltk::tkbind(img[[i]],"<Button-1>", function(x,y){
+            wid <- as.integer(tcltk::tkwinfo("width",img[[i]]))
+            hei <- as.integer(tcltk::tkwinfo("height",img[[i]]))
             if(lay=="clockwise" || which=="z")
                 bb[j] <<- as.numeric(x)/wid*d[j]
             else
@@ -87,7 +87,7 @@ slices3d <- function(vol1, vol2=NULL, rlim1=c(-Inf, Inf), rlim2=NULL,
             
             for (j in 1:3){
                 tkrplot::tkrreplot(img[[j]])
-                tclvalue(bbv[[j]]) <<- as.character(round(bb[j]))
+                tcltk::tclvalue(bbv[[j]]) <<- as.character(round(bb[j]))
             }
         })
     }
@@ -132,18 +132,18 @@ slices3d <- function(vol1, vol2=NULL, rlim1=c(-Inf, Inf), rlim2=NULL,
     d <- dim(vol)
     #dn <- c("x", "y", "z", "t")
     dn <- c(direct, "t")
-    tt <- tktoplevel()
-    tktitle(tt) <- main
+    tt <- tcltk::tktoplevel()
+    tcltk::tktitle(tt) <- main
     bb <- c(round(d[1:3]) / 2, 1)
-    bbv <- lapply(bb, tclVar)
+    bbv <- lapply(bb, tcltk::tclVar)
     s <- lapply(layout, mkscale)
     img <- lapply(direct[layout], mkimg)
-    tkgrid(img[[1]], img[[2]])
-    tkgrid(s[[1]],s[[2]])
-    tkgrid(img[[3]])
+    tcltk::tkgrid(img[[1]], img[[2]])
+    tcltk::tkgrid(s[[1]],s[[2]])
+    tcltk::tkgrid(img[[3]])
     if (length(d) == 4 && d[4] > 1)
-        tkgrid(s[[3]], mkscale(4))
-    else tkgrid(s[[3]])
+        tcltk::tkgrid(s[[3]], mkscale(4))
+    else tcltk::tkgrid(s[[3]])
     lapply(direct[layout], move)
 
     environment()

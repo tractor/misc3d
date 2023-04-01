@@ -15,7 +15,3 @@ export(linesTetrahedra)
 importFrom("grDevices", "col2rgb", "gray.colors", "heat.colors", "rgb")
 importFrom("graphics", "image", "lines", "par", "polygon")
 importFrom("stats", "dnorm", "quantile", "runif")
-importFrom("tcltk", "tclvalue", "tclVar", "tclvalue<-",
-           "tkconfigure", "tkbind", "tkframe",
-           "tkgrid", "tklabel", "tkscale", "tktitle<-", 
-           "tktoplevel", "tkwinfo")
